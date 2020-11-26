@@ -23,18 +23,16 @@ cromosomas de las flores:
 angulos_direcciones = [0, pi*5/6, pi*3/4, pi*2/3, pi/2, pi/3, pi/4,
                        pi/6, pi, -pi/6, -pi/4, -pi/3, -pi/2, -pi*2/3, -pi*3/4, -pi*5/6]
 largo_angulos_posibles = len(angulos_direcciones)-1
-
 inicial_random = random.randint(0, largo_angulos_posibles)
-
 
 class Abeja:
     def __init__(self,padre=None,madre=None):
         if padre==None or madre==None:
             desviacionMaxima=random
-            direccionFavorita=random.randit(0, largo_angulos_posibles)
+            direccionFavorita=inicial_random
             colorFavorito=(0,0,255)
             toleranciaAlColor=0
-            anguloDesviacion=math.pi
+            anguloDesviacion=pi
             recorrido=[(200,200),2] #2=random
             nectar_recolectado=[]
             self.desviacionMaxima=desviacionMaxima
