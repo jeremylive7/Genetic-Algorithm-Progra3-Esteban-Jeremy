@@ -1,6 +1,7 @@
 import math 
 from math import pi,sin,cos
 import random
+from abc import abstractmethod
 
 
 """ cromosomas de las abejas:
@@ -40,7 +41,7 @@ inicial_random = angulos_direcciones[inicial_random_indice]
 """
 Generic Logic
 """
-class Abeja:
+class AbejaIndividuo:
     def __init__(self,padre=None,madre=None):
         if padre==None or madre==None:
             desviacionMaxima=0
@@ -63,19 +64,28 @@ class Abeja:
         else:
             return 0
             #reproducir a papá y mamá XD
+
+    @abstractmethod
+    def simularRecorrido(self):
+        """
+        Debe simular el recorrido y devolver la información necesaria 
+        para hacer el cálculo de adaptabilidad
+        """;
+
     def cruce(self,otraAbeja):
         return 0
+class AbejaRandom(AbejaIndividuo):
     def simularRecorrido(self):
-        #para el recorrido random
         distanciaDesdeElCentro=random()*self.distanciaMaxima
         angulo=random.randint(self.direccionFavorita-self.desviacionMaxima,self.direccionFavorita+self.desviacionMaxima)
         x=50+sin(angulo)*distanciaDesdeElCentro
         y=50+cos(angulo)*distanciaDesdeElCentro
-
-
-        #para anchura:
-        #for r in range(0,self.dis)
-        #return 0
+class AbejaAnchura(AbejaIndividuo):
+    def simularRecorrido(self):
+        pass
+class AbejaProfundidad(AbejaIndividuo):
+    def simularRecorrido(self):
+        pass
 """
 Garden Logic
 """
@@ -84,7 +94,30 @@ class Flor:
         self.radio = pRadio
         self.anagulo = pAngulo
         self.muestras = pMuestras
+    
+CANT_ABEJAS=20
+CANT_FLORES=50
+def jardin():
+    abejas=[
+        AbejaIndividuo()
+        for _ in range(CANT_ABEJAS)
+    ]
+    flores=[
+        Flor()
+        for _ in range(CANT_FLORES)
+    ]
+    while hayEvolucion():
+        for abeja in abejas:
+            abeja.simularRecorrido()
+        nuevasFlores=[
+            flor.reproducir()#nueva flor si su lista de muestras está vacía
+            for flor in flores
+        ]
+        calificarAbejas()#debe conservarse el linaje
+        reproducirAbejas()#debe conservarse el linaje
+        flores=nuevasFlores
 
+        
 
 """
 Setup
