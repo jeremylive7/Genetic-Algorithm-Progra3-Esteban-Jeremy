@@ -230,18 +230,56 @@ def createColor(pColor1, pColor2):
 def creoAnguloHijo(direccion_1, direccion_2):
     cantidad_decimales = 4
 
-    dic1 = get_float(direccion_1, cantidad_decimales)
-    dic2 = get_float(direccion_2, cantidad_decimales)
-
-    dic11 = float_bin(dic1, cantidad_decimales)
-    dic22 = float_bin(dic2, cantidad_decimales)
+    dic1 = float_bin(direccion_1, cantidad_decimales)
+    dic2 = float_bin(direccion_2, cantidad_decimales)
     
-    dic111 = []
-    dic222 = []
+    dic11 = []
+    dic22 = []
 
+    num_izq_1, num_der_1 = dic1.split(".")
+    num_izq_2, num_der_2 = dic2.split(".")
+
+    dic11.append(num_izq_1)
+    dic11.append(num_der_1)
+
+    dic22.append(num_izq_2)
+    dic22.append(num_der_2)
+
+    """
     largo1 = int(len(dic11)/2)
     largo2 = int(len(dic22)/2)
 
+    ang_1 = 0
+    ang_11 = 0
+    ang_2 = 0
+    ang_22 = 0
+
+    flag = False
+    for i in range(0, len(dic11), largo1):
+        if dic11[i] != "." and flag == False:
+            ang_1 = dic11[i]
+        else:
+            flag = True;
+            if dic11[i] != ".":
+                ang_11 = dic11[i]
+            
+    dic111.append(ang_1)
+    dic111.append(ang_11)
+
+    flag = False
+    for i in range(0, len(dic22), largo2):
+        if dic22[i] != "." and flag == False:
+            ang_2 = dic22[i]
+        else:
+            flag = True
+            if dic22[i] != ".":
+                ang_22 = dic22[i]
+
+    dic222.append(ang_2)
+    dic222.append(ang_22)
+    """
+
+    """
     if largo1 % 2 != 0:
         dic111 = [dic11[i:i+largo1+1]
                 for i in range(0, len(dic11), largo1+1)]
@@ -255,13 +293,17 @@ def creoAnguloHijo(direccion_1, direccion_2):
     else:
         dic222 = [dic22[i:i+largo2]
                 for i in range(0, len(dic22), largo2)]
-
-    print(dic111)
+    """
     #result0 = convertColorBinarioToInt(dic111[0])
     #result00 = convertColorBinarioToInt(dic222[1])
     #result = result0+"."+result00
 
-    return 0
+    #result = dic11[0]+"."+dic22[1]
+    int_1 = int(dic11[0],2)
+    int_2 = int(dic22[1], 2)
+    result = str(int_1)+"."+str(int_2)
+
+    return result
 
 def creoHijo(x, y):
     angulo1 = convertColorIntToBinario(x)
@@ -316,6 +358,22 @@ def prueba1(abeja_1, abeja_2):
 
     return binario_hijo
 
+
+def binario_a_decimal(numero_binario):
+	numero_decimal, cont = 0,0
+
+	for posicion, digito_string in enumerate(numero_binario[::-1]):
+            posicion-=cont
+
+            if digito_string != ".":
+                numero_decimal += int(digito_string) * 2 ** posicion
+            else:
+                cont += 1
+
+	return numero_decimal
+
+#print(binario_a_decimal('10.0'))
+#print(binario_a_decimal('11110.12134'))
 
 """
 Prueba1 pasa todos los parametros de padre y madre a binario para hacer el cruce.
