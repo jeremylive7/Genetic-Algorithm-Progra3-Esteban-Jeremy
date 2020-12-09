@@ -201,14 +201,33 @@ def createColor(pColor1, pColor2):
     for u in range(len(binario_1)):
         binario_11 = binario_1[u]
         binario_22 = binario_2[u]
-        binario_slice1 = [binario_11[i:i+4] for i in range(0, len(binario_11), 4)]
-        binario_slice2 = [binario_22[i:i+4] for i in range(0, len(binario_22), 4)]
+
+        binario_slice1 = []
+        binario_slice2 = []
+
+        largo1 = int(len(binario_11)/2)
+        largo2 = int(len(binario_22)/2)
+
+        if largo1 % 2 != 0:
+            binario_slice1 = [binario_11[i:i+largo1+1]
+                for i in range(0, len(binario_11), largo1+1)]
+        else:
+            binario_slice1 = [binario_11[i:i+largo1]
+                for i in range(0, len(binario_11), largo1)]
+
+        if largo2 % 2 != 0:
+            binario_slice2 = [binario_22[i:i+largo2+1]
+                for i in range(0, len(binario_22), largo2+1)]
+        else:
+            binario_slice2 = [binario_22[i:i+largo2]
+                for i in range(0, len(binario_22), largo2)]
         
-        binario_hijo.append(binario_slice1[0]+binario_slice2[1])
+        binario_hijo.append(
+            convertColorBinarioToInt(binario_slice1[0]+binario_slice2[1]))
 
     return binario_hijo
 
-def createDireccion(direccion_1, direccion_2):
+def creoAnguloHijo(direccion_1, direccion_2):
     cantidad_decimales = 4
 
     dic1 = get_float(direccion_1, cantidad_decimales)
@@ -217,60 +236,58 @@ def createDireccion(direccion_1, direccion_2):
     dic11 = float_bin(dic1, cantidad_decimales)
     dic22 = float_bin(dic2, cantidad_decimales)
     
+    dic111 = []
+    dic222 = []
+
     largo1 = int(len(dic11)/2)
-    dic111 = [dic11[i:i+largo1] for i in range(0, len(dic11), largo1)]
-
     largo2 = int(len(dic22)/2)
-    dic222 = [dic22[i:i+largo2] for i in range(0, len(dic22), largo2)]
 
-    return dic111[0]+dic222[1]
+    if largo1 % 2 != 0:
+        dic111 = [dic11[i:i+largo1+1]
+                for i in range(0, len(dic11), largo1+1)]
+    else:
+        dic111 = [dic11[i:i+largo1]
+                for i in range(0, len(dic11), largo1)]
 
-def createTolerancia(x, y): 
-    tolerancia1 = convertColorIntToBinario(x)
-    tolerancia2 = convertColorIntToBinario(y)
+    if largo2 % 2 != 0:
+        dic222 = [dic22[i:i+largo2+1]
+                for i in range(0, len(dic22), largo2+1)]
+    else:
+        dic222 = [dic22[i:i+largo2]
+                for i in range(0, len(dic22), largo2)]
 
-    largo1 = int(len(tolerancia1)/2)
-    tolerancia11 = [tolerancia1[i:i+largo1] for i in range(0, len(tolerancia1), largo1)]
+    print(dic111)
+    #result0 = convertColorBinarioToInt(dic111[0])
+    #result00 = convertColorBinarioToInt(dic222[1])
+    #result = result0+"."+result00
 
-    largo2 = int(len(tolerancia2)/2)
-    tolerancia22 = [tolerancia2[i:i+largo2] for i in range(0, len(tolerancia2), largo2)]
+    return 0
 
-    result = convertColorBinarioToInt(tolerancia11[0]+tolerancia22[1])
-
-    return result
-
-
-def createAngulo(x, y):
+def creoHijo(x, y):
     angulo1 = convertColorIntToBinario(x)
     angulo2 = convertColorIntToBinario(y)
+    angulo11 = []
+    angulo22 = []
 
     largo1 = int(len(angulo1)/2)
-    angulo11 = [angulo1[i:i+largo1]
-                    for i in range(0, len(angulo1), largo1)]
-
     largo2 = int(len(angulo2)/2)
-    angulo22 = [angulo2[i:i+largo2]
-                    for i in range(0, len(angulo2), largo2)]
+
+    if largo1 % 2 != 0:
+        angulo11 = [angulo1[i:i+largo1+1] 
+                for i in range(0, len(angulo1), largo1+1)]
+    else:
+        angulo11 = [angulo1[i:i+largo1]
+                for i in range(0, len(angulo1), largo1)]
+
+    if largo2 % 2 != 0:
+        angulo22 = [angulo2[i:i+largo2+1]
+                for i in range(0, len(angulo2), largo2+1)]
+    else:
+        angulo22 = [angulo2[i:i+largo2]
+                for i in range(0, len(angulo2), largo2)]
 
 
     result = convertColorBinarioToInt(angulo11[0]+angulo22[1])
-
-    return result
-
-
-def createDistanciaMaxima(x, y):
-    distancia1 = convertColorIntToBinario(x)
-    distancia2 = convertColorIntToBinario(y)
-
-    largo1 = int(len(distancia1)/2)
-    distancia11 = [distancia1[i:i+largo1]
-                for i in range(0, len(distancia1), largo1)]
-
-    largo2 = int(len(distancia2)/2)
-    distancia22 = [distancia2[i:i+largo2]
-                for i in range(0, len(distancia2), largo2)]
-
-    result = convertColorBinarioToInt(distancia11[0]+distancia22[1])
 
     return result
 
@@ -281,19 +298,19 @@ def prueba1(abeja_1, abeja_2):
 
     binario_hijo = []
 
-    direccion_favorita_hijo = createDireccion(pi*3/4, pi/2)
+    direccion_favorita_hijo = creoAnguloHijo(pi*3/4, pi/2)
     binario_hijo.append(direccion_favorita_hijo)
 
     color_hijo = createColor((255, 128, 200), (100, 150, 125))
     binario_hijo.append(color_hijo)
 
-    tolerancia_hijo = createTolerancia(20, 22)
+    tolerancia_hijo = creoHijo(20, 22)
     binario_hijo.append(tolerancia_hijo)
 
-    angulo_desviacion_hijo = createAngulo(30, 39)
+    angulo_desviacion_hijo = creoAnguloHijo(30.567, 39.2436)
     binario_hijo.append(angulo_desviacion_hijo)
 
-    distanciaMaxima_hijo = createDistanciaMaxima(40, 56)
+    distanciaMaxima_hijo = creoHijo(40, 56)
     binario_hijo.append(distanciaMaxima_hijo)
 
 
