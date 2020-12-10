@@ -285,10 +285,12 @@ def prueba1(abeja_padre, abeja_madre):
     resultado.append(resultado_enteros_hijo2)
 
     print("hijo1 %s" % binario_hijo_1)
+    print("Lista largo de variables: %s" % lista_largo_variables_hijo_1)
     print("Punto de distancia y desviacion: %s" % punto_direccion_y_desviacion_1)
     print("Binario variables Hijo 1: %s" % resultado_hijo1)
 
     print("hijo2 %s" % binario_hijo_2)
+    print("Lista largo de variables: %s" % lista_largo_variables_hijo_2)
     print("Punto de distancia y desviacion: %s" % punto_direccion_y_desviacion_2)
     print("Binario variables Hijo 2: %s" % resultado_hijo2)
 
@@ -330,6 +332,7 @@ def sumaTotal(lista):
 def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
     resultado_hijo1 = []
     contador = 0
+    #......................................
     conter = 1
     nueva_variable = ""
     tamano = 0
@@ -338,7 +341,7 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
         
     if tamano_total > largo_binario:
         tamano = tamano_total-largo_binario
-        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1]-=tamano
+        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] -= tamano
     elif tamano_total < largo_binario:
         tamano = largo_binario-tamano_total
         lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] += tamano
@@ -352,6 +355,7 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
             contador += 1
             resultado_hijo1.append(nueva_variable)
             nueva_variable = ""
+            #..............................
             conter = 1
         else:
             nueva_variable += binario_hijo_1[i]
@@ -368,12 +372,6 @@ abeja_hijo = prueba1(abeja1, abeja2)
 
 for j in range(len(abeja_hijo)):
     print("Variables hijos: %s" % abeja_hijo[j])
-
-print(Cruce.float_bin(0.3453,20))
-
-
-#>> > bin(3453)
-#'0b110101111101'
 
 
 """ cromosomas de las abejas:

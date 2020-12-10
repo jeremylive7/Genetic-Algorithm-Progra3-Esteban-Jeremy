@@ -22,7 +22,6 @@ class Cruce:
         whole = int(whole)
         dec = int(dec)
         if whole == 0:
-            print("entro")
             res = "0."
         else:
             res = bin(whole).lstrip("0b") + "."
