@@ -275,7 +275,12 @@ def prueba1(abeja_padre, abeja_madre):
     resultado.append(resultado_enteros_hijo2)
 
     print("hijo1 %s" % binario_hijo_1)
+    print("Puntos: %s" % punto_direccion_y_desviacion_1)
+    print("Binario variables Hijo 1: %s" % resultado_hijo1)
+
     print("hijo2 %s" % binario_hijo_2)
+    print("Puntos: %s" % punto_direccion_y_desviacion_2)
+    print("Binario variables Hijo 2: %s" % resultado_hijo2)
 
     return resultado
 
@@ -353,7 +358,7 @@ abeja2 = AbejaIndividuo()
 abeja_hijo = prueba1(abeja1, abeja2)
 
 for j in range(len(abeja_hijo)):
-    print("%s" % abeja_hijo[j])
+    print("Variables hijos: %s" % abeja_hijo[j])
 
 
 

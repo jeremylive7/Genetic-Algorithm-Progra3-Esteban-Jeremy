@@ -51,7 +51,7 @@ class Cruce:
         angulo_desviacion = abeja.angulo_desviacion
         distancia_maxima = abeja.distancia_maxima
         """
-        direccion_favorita = pi*3/4
+        direccion_favorita = 2.366
         color_favorito = 255 #(255, 0, 0)
         tolerancia_al_color = 0.554
         angulo_desviacion = 30.39
@@ -119,7 +119,7 @@ class Cruce:
         angulo_desviacion = abeja.angulo_desviacion
         distancia_maxima = abeja.distancia_maxima
         """
-        direccion_favorita = pi/2
+        direccion_favorita = 4.777
         color_favorito = 200  # (255, 0, 0)
         tolerancia_al_color = 0.253
         angulo_desviacion = 26.22
