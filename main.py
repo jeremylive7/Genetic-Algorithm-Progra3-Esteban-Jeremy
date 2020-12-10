@@ -267,6 +267,16 @@ def prueba1(abeja_padre, abeja_madre):
     resultado_hijo1 = resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1)
     resultado_hijo2 = resultadoHijo(binario_hijo_2, lista_largo_variables_hijo_2)
 
+    #Pongo el punto de desviacion para hijo 1
+    resultado_hijo1[0] = ponerPuntoPosicion(resultado_hijo1[0], punto_direccion_y_desviacion_1[0])
+    #Pongo el punto de angulo para hijo 1
+    resultado_hijo1[3] = ponerPuntoPosicion(resultado_hijo1[3], punto_direccion_y_desviacion_1[1])
+
+    #Pongo el punto de desviacion para hijo 2
+    resultado_hijo2[0] = ponerPuntoPosicion(resultado_hijo2[0], punto_direccion_y_desviacion_2[0])
+    #Pongo el punto de angulo para hijo 2
+    resultado_hijo2[3] = ponerPuntoPosicion(resultado_hijo2[3], punto_direccion_y_desviacion_2[1])
+
     resultado_enteros_hijo1 = obtengoNumerosEnteros(resultado_hijo1)
     resultado_enteros_hijo2 = obtengoNumerosEnteros(resultado_hijo2)
 
@@ -275,21 +285,38 @@ def prueba1(abeja_padre, abeja_madre):
     resultado.append(resultado_enteros_hijo2)
 
     print("hijo1 %s" % binario_hijo_1)
-    print("Puntos: %s" % punto_direccion_y_desviacion_1)
+    print("Punto de distancia y desviacion: %s" % punto_direccion_y_desviacion_1)
     print("Binario variables Hijo 1: %s" % resultado_hijo1)
 
     print("hijo2 %s" % binario_hijo_2)
-    print("Puntos: %s" % punto_direccion_y_desviacion_2)
+    print("Punto de distancia y desviacion: %s" % punto_direccion_y_desviacion_2)
     print("Binario variables Hijo 2: %s" % resultado_hijo2)
 
     return resultado
 
 
+def ponerPuntoPosicion(pLista, pNum):
+    lista = pLista[:pNum]+"."+pLista[pNum:]
+    return lista
+
 def obtengoNumerosEnteros(pLista):
     lista = []
 
     for i in range(len(pLista)):
-        lista.append(int(pLista[i], 2))
+        if i == 0:
+            p1, p2 = pLista[i].split(".")
+            r1 = int(p1, 2)
+            r2 = int(p2, 2)
+            rr = str(r1)+"."+str(r2)
+            lista.append(float(rr))
+        elif i == 3:
+            p1, p2 = pLista[i].split(".")
+            r1 = int(p1, 2)
+            r2 = int(p2, 2)
+            rr = str(r1)+"."+str(r2)
+            lista.append(float(rr))
+        else:
+            lista.append(int(pLista[i], 2))
 
     return lista
 
