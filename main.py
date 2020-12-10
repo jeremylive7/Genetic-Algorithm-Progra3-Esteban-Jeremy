@@ -360,24 +360,6 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
     return resultado_hijo1
 
 
-
-"""
-Padre: 1001011111111111111001101000111
-Madre: 11001110010000110100011101000
-Pivote: 13
-['001011', '']
-['11010', '1']
-
-hijo1 10010111111110110100011101000
-hijo2 01101000111010001001011111111
-10010111111110110100011101000
-[6, 8, 1, 9, 6]
-[2, 5]
-01101000111010001001011111111
-[5, 8, 1, 9, 7]
-[1, 5]
-"""
-
 #Inicializo abejas Padres
 abeja1 = AbejaIndividuo()
 abeja2 = AbejaIndividuo()
@@ -387,11 +369,11 @@ abeja_hijo = prueba1(abeja1, abeja2)
 for j in range(len(abeja_hijo)):
     print("Variables hijos: %s" % abeja_hijo[j])
 
+print(Cruce.float_bin(0.3453,20))
 
 
-
-
-
+#>> > bin(3453)
+#'0b110101111101'
 
 
 """ cromosomas de las abejas:

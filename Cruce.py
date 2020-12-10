@@ -21,7 +21,11 @@ class Cruce:
         whole, dec = str(number).split(".")
         whole = int(whole)
         dec = int(dec)
-        res = bin(whole).lstrip("0b") + "."
+        if whole == 0:
+            print("entro")
+            res = "0."
+        else:
+            res = bin(whole).lstrip("0b") + "."
 
         for x in range(cantidad):
             whole, dec = str((Cruce.decimal_converter(dec)) * 2).split(".")
