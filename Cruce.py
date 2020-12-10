@@ -17,7 +17,7 @@ class Cruce:
             num /= 10
         return num
 
-    def float_bin(number, cantidad=3):
+    def float_bin(number, cantidad):
         whole, dec = str(number).split(".")
         whole = int(whole)
         dec = int(dec)
@@ -53,23 +53,25 @@ class Cruce:
         """
         direccion_favorita = pi*3/4
         color_favorito = 255 #(255, 0, 0)
-        tolerancia_al_color = 1
+        tolerancia_al_color = 0.554
         angulo_desviacion = 30.39
         distancia_maxima = 71
 
-        cantidad = 4
+        cantidad = 2
 
         direccion_favorita_hijo_con_punto = Cruce.float_bin(direccion_favorita, cantidad)
         color_favorito_hijo = Cruce.convertIntToBinario(color_favorito)
-        tolerancia_al_color_hijo = Cruce.convertIntToBinario(tolerancia_al_color)
+        tolerancia_al_color_hijo_con_punto = Cruce.float_bin(tolerancia_al_color, cantidad)
         angulo_desviacion_hijo_con_punto = Cruce.float_bin(angulo_desviacion, cantidad)
         distancia_maxima_hijo = Cruce.convertIntToBinario(distancia_maxima)
 
         posicion_punto_direccion = Cruce.puntoPosicion(direccion_favorita_hijo_con_punto)
         posicion_punto_desviacion = Cruce.puntoPosicion(angulo_desviacion_hijo_con_punto)
+        posicion_punto_tolerancia = Cruce.puntoPosicion(tolerancia_al_color_hijo_con_punto)
 
         direccion_favorita_hijo = Cruce.eliminoPunto(direccion_favorita_hijo_con_punto)
         angulo_desviacion_hijo = Cruce.eliminoPunto(angulo_desviacion_hijo_con_punto)
+        tolerancia_al_color_hijo = Cruce.eliminoPunto(tolerancia_al_color_hijo_con_punto)
 
         parte_hijo_binario += direccion_favorita_hijo
         parte_hijo_binario += color_favorito_hijo
@@ -102,6 +104,7 @@ class Cruce:
         result.append(posicion_punto_desviacion)
         result.append(lista_largo_variables_por_parametro)
         result.append(lista_largo_variables)
+        result.append(posicion_punto_tolerancia)
 
         return result
 
@@ -118,17 +121,17 @@ class Cruce:
         """
         direccion_favorita = pi/2
         color_favorito = 200  # (255, 0, 0)
-        tolerancia_al_color = 0
+        tolerancia_al_color = 0.253
         angulo_desviacion = 26.22
         distancia_maxima = 40
 
-        cantidad = 4
+        cantidad = 2
 
         direccion_favorita_hijo_con_punto = Cruce.float_bin(
             direccion_favorita, cantidad)
         color_favorito_hijo = Cruce.convertIntToBinario(color_favorito)
-        tolerancia_al_color_hijo = Cruce.convertIntToBinario(
-            tolerancia_al_color)
+        tolerancia_al_color_hijo_con_punto = Cruce.float_bin(
+            tolerancia_al_color, cantidad)
         angulo_desviacion_hijo_con_punto = Cruce.float_bin(
             angulo_desviacion, cantidad)
         distancia_maxima_hijo = Cruce.convertIntToBinario(distancia_maxima)
@@ -137,11 +140,15 @@ class Cruce:
             direccion_favorita_hijo_con_punto)
         posicion_punto_desviacion = Cruce.puntoPosicion(
             angulo_desviacion_hijo_con_punto)
+        posicion_punto_tolerancia = Cruce.puntoPosicion(
+            tolerancia_al_color_hijo_con_punto)
 
         direccion_favorita_hijo = Cruce.eliminoPunto(
             direccion_favorita_hijo_con_punto)
         angulo_desviacion_hijo = Cruce.eliminoPunto(
             angulo_desviacion_hijo_con_punto)
+        tolerancia_al_color_hijo = Cruce.eliminoPunto(
+            tolerancia_al_color_hijo_con_punto)
 
         parte_hijo_binario += direccion_favorita_hijo
         parte_hijo_binario += color_favorito_hijo
@@ -177,6 +184,7 @@ class Cruce:
         result.append(posicion_punto_desviacion)
         result.append(lista_largo_variables_por_parametro)
         result.append(lista_largo_variables)
+        result.append(posicion_punto_tolerancia)
 
         return result
 

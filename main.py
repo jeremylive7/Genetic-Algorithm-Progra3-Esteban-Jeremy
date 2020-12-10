@@ -205,7 +205,6 @@ def prueba1(abeja_padre, abeja_madre):
         rango_random_pivote = largo2
 
     pivote_random = random.randint(0, rango_random_pivote-1)
-
     print("Pivote: %s" % pivote_random)
 
     parte_del_padre = lista_de_bits_padre[:pivote_random]
@@ -265,10 +264,87 @@ def prueba1(abeja_padre, abeja_madre):
     result.append(lista_largo_variables_hijo_2)
     result.append(punto_direccion_y_desviacion_2)
 
-    resultado_hijo1 = []
-    
+    resultado_hijo1 = resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1)
+    resultado_hijo2 = resultadoHijo(binario_hijo_2, lista_largo_variables_hijo_2)
+
+    resultado_enteros_hijo1 = obtengoNumerosEnteros(resultado_hijo1)
+    resultado_enteros_hijo2 = obtengoNumerosEnteros(resultado_hijo2)
+
+    resultado = []
+    resultado.append(resultado_enteros_hijo1)
+    resultado.append(resultado_enteros_hijo2)
+
+    print("hijo1 %s" % binario_hijo_1)
+    print("hijo2 %s" % binario_hijo_2)
+
+    return resultado
+
+
+def obtengoNumerosEnteros(pLista):
+    lista = []
+
+    for i in range(len(pLista)):
+        lista.append(int(pLista[i], 2))
+
+    return lista
+
+def sumaTotal(lista):
+    result = 0
+    for i in range(len(lista)):
+        result += lista[i]
 
     return result
+
+def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
+    resultado_hijo1 = []
+    contador = 0
+    conter = 1
+    nueva_variable = ""
+    tamano = 0
+    largo_binario = len(binario_hijo_1)
+    tamano_total = sumaTotal(lista_largo_variables_hijo_1)
+        
+    if tamano_total > largo_binario:
+        tamano = tamano_total-largo_binario
+        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1]-=tamano
+    elif tamano_total < largo_binario:
+        tamano = largo_binario-tamano_total
+        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] += tamano
+
+    for i in range(largo_binario):
+        variable = lista_largo_variables_hijo_1[contador]
+        if i == 0:
+            nueva_variable += binario_hijo_1[i]
+            conter += 1
+        elif conter == variable:
+            contador += 1
+            resultado_hijo1.append(nueva_variable)
+            nueva_variable = ""
+            conter = 1
+        else:
+            nueva_variable += binario_hijo_1[i]
+            conter += 1
+
+    return resultado_hijo1
+
+
+
+"""
+Padre: 1001011111111111111001101000111
+Madre: 11001110010000110100011101000
+Pivote: 13
+['001011', '']
+['11010', '1']
+
+hijo1 10010111111110110100011101000
+hijo2 01101000111010001001011111111
+10010111111110110100011101000
+[6, 8, 1, 9, 6]
+[2, 5]
+01101000111010001001011111111
+[5, 8, 1, 9, 7]
+[1, 5]
+"""
 
 #Inicializo abejas Padres
 abeja1 = AbejaIndividuo()
