@@ -1,6 +1,6 @@
 import math 
 from math import pi,sin,cos
-import random
+from random import random, choices
 from abc import abstractmethod
 
 #oeste,este,norte,sur
@@ -8,9 +8,10 @@ angulos_direcciones = [0, pi*3/4, pi/2, pi/4, pi, -pi/4, -pi/2, -pi*3/4]
 largo_angulos_posibles = len(angulos_direcciones)-1
 inicial_random_indice = random.randint(0, largo_angulos_posibles)
 inicial_random = angulos_direcciones[inicial_random_indice]
-
+def frange(inicio,fin,step):
+    return [inicio + i*step for i in range((fin-inicio)/step)]
 """
-Generic Logic
+Genetic Logic
 """
 class Abeja:
     def __init__(self,padre=None,madre=None):
@@ -21,7 +22,6 @@ class Abeja:
             toleranciaAlColor=0
             anguloDesviacion=0
             recorrido=random()*(2**8-1)#2=random
-            paramRecorrido=random()*(2**8-1)
             nectar_recolectado=[]
             #distanciaMaxima=distanciaMax(lado_escogido)
             distanciaMaxima=random.randint(0,71)
@@ -43,27 +43,30 @@ class Abeja:
     def esRandom(self):
         return self.cmpRecorrido(1)
     def esProfundo(self):
-        return self.cmpRecorrido(3)
+        return self.cmpRecorrido(2)
     def randompos(self):
         return randompos(self.distanciaMaxima,self.direccionFavorita,self.desviacionMaxima)
+    def izq(self):
+        return self.direccionFavorita-self.desviacionMaxima
+    def der(self):
+        return self.direccionFavorita+self.desviacionMaxima
     def calcularRecorrido(self):
         """
-        Debe simular el recorrido y devolver la información necesaria 
-        para hacer el cálculo de adaptabilidad
-        """;
-        puntos=[]
-        #Primero se determina la ruta que ralizará la abeja.
+        Crea una lista de puntos sobre los que hipotéticamente pasará
+        la abeja
+        """
+        puntos=set()
         if self.esAnchura():
-            for a in angulos:
-                for r in radios:
-                    puntos.append(XYfromPolar(CX,CY,r,a))
+            for a in frange(self.izq(),self.der(),0.01):
+                for r in range(self.distanciaMaxima):
+                    puntos.add(XYfromPolar(CX,CY,r,a))
         elif self.esRandom():
-            for _ in range(self.paramRecorrido):
-                puntos.append(self.randompos())
+            for _ in range(150):
+                puntos.add(self.randompos())
         else:
-            for r in radios:
-                for a in angulos:
-                    puntos.append(XYfromPolar(CX,CY,r,a))
+            for r in range(self.distanciaMaxima):
+                for a in frange(self.izq(),self.der(),0.01):
+                    puntos.add(XYfromPolar(CX,CY,r,a))
         return puntos
 
     def cruce(self,otraAbeja):
@@ -74,8 +77,10 @@ Garden Logic
 class Flor:
     def __init__(self,pRadio,pAngulo,pMuestras):
         self.radio = pRadio
-        self.anagulo = pAngulo
+        self.angulo = pAngulo
         self.muestras = pMuestras
+        self.x=int(random()*100)
+        self.y=int(random()*100)
 CANT_GENERACIONES=200
 CANT_ABEJAS=20
 CANT_FLORES=50
@@ -91,6 +96,8 @@ def randompos(r,fav,mistake):
     distanciaDesdeElCentro=random()*r
     angulo=(fav-mistake)+random()*(2*mistake)
     return XYfromPolar(CX,CY,distanciaDesdeElCentro,angulo);
+def distancia(p1,p2):
+    return pow(pow(p1[0]-p2[0],2)+pow(p1[1]-p2[1],2),1/2)
 def jardin():
     """
     Esta función simula el comportamiento el jardín atravez de las
@@ -116,15 +123,27 @@ def jardin():
         """
         nonlocal cacheNormalizedFitness
         nuevasAbejas=[]
+        pesos=[
+            cacheNormalizedFitness[abeja] 
+            for abeja in abejas
+        ]
         for _ in range(CANT_ABEJAS):
-            abejaPadre=
-            abajaMadre=
-            nuevasAbejas.append(Abeja(abejaMadre,abejaPadre))
+            abejaPadre,abejaMadre=choices(
+                abejas,
+                weights=pesos,
+                k=2)
+            nuevasAbejas.append(Abeja(abejaPadre,abejaMadre))
         return nuevasAbejas
 
     cacheNormalizedFitness={}
     cacheCalif={}
     #Aquí comienza lo bueno#
+    def getFlor(punto):
+        nonlocal flores
+        for flor in flores:
+            if flor.x==punto[0] and flor.y==punto[1]:
+                return flor
+        return None
     abejas=[
         Abeja()
         for _ in range(CANT_ABEJAS)
@@ -134,30 +153,32 @@ def jardin():
         for _ in range(CANT_FLORES)
     ]
     for g in range(CANT_GENERACIONES):
+        #pintarFlores()
         sumCalifGener=0
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
             puntoAnterior=(CX,CY)
             distanciaRecorrida=0
             for punto in recorrido:
+                #pintarRecorrido(abeja,punto)
                 flor=getFlor(punto)
-                if flor!=None:
-                    #Simular Interaccion entre la abeja y la flor
+                if flor!=None:#Simular Interaccion entre la abeja y la flor
                     flor.muestras+=abeja.polen
                     abeja.polen+=[flor.getMuestra()]
                     abeja.cantFlores+=1
-                    distanciaRecorrida+=distancia(puntoAnterior,punto)
+                    distanciaRecorrida+=distancia(puntoAnterior,punto)#¡Duda!#
                 puntoAnterior=punto
-            cacheCalif[abeja]=distanciaRecorrida/abeja.cantFlores
+            cacheCalif[abeja]=K*distanciaRecorrida/Q*abeja.cantFlores #Calificación bruta
             sumCalifGener+=cacheCalif[abeja]
         for abeja in abejas:
-            cacheNormalizedFitness[abeja]=calificacion(abeja)/sumCalifGener
+            cacheNormalizedFitness[abeja]=calificacion(abeja)/sumCalifGener #Calificacion relativa
         abejas=reproducirAbejas(abejas)
         nuevasFlores=[
             flor.reproducir()
             for flor in flores
         ]
         flores=nuevasFlores
+        #despintarViejasFlores()
 
         
 
