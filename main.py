@@ -196,6 +196,9 @@ def prueba1(abeja_padre, abeja_madre):
     lista_largo_variables_padre = lista_padre[4]
     lista_largo_variables_madre = lista_madre[4]
 
+    posicion_punto_tolerancia_padre = lista_padre[5]
+    posicion_punto_tolerancia_madre = lista_madre[5]
+
     largo1 = len(lista_de_bits_padre)
     largo2 = len(lista_de_bits_madre)
 
@@ -223,19 +226,23 @@ def prueba1(abeja_padre, abeja_madre):
         lista_largo_variables_hijo_1 = lista_largo_variables_padre_por_parametro
         punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
         punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_padre)
+        punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
         binario_hijo_2 += lista_de_bits_madre
         lista_largo_variables_hijo_2 = lista_largo_variables_madre_por_parametro
         punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
         punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_madre)
+        punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
     elif pivote_random == rango_random_pivote-1:
         binario_hijo_1 += lista_de_bits_madre
         lista_largo_variables_hijo_2 = lista_largo_variables_madre_por_parametro
         punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
         punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_madre)
+        punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
         binario_hijo_2 += lista_de_bits_padre
         lista_largo_variables_hijo_1 = lista_largo_variables_padre_por_parametro
         punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
         punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_padre)
+        punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
     else:
         flag = False
         for i in range(len(lista_largo_variables_padre)):
@@ -249,6 +256,7 @@ def prueba1(abeja_padre, abeja_madre):
                 lista_largo_variables_hijo_1 += lista_largo_variables_madre_por_parametro[i:]
                 punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
                 punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_madre)
+                punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
                 
                 binario_hijo_2 += parte_de_la_madre
                 binario_hijo_2 += parte_del_padre
@@ -256,6 +264,7 @@ def prueba1(abeja_padre, abeja_madre):
                 lista_largo_variables_hijo_2 += lista_largo_variables_padre_por_parametro[i:]
                 punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
                 punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_padre)
+                punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
 
     result.append(binario_hijo_1)
     result.append(lista_largo_variables_hijo_1)
@@ -267,15 +276,24 @@ def prueba1(abeja_padre, abeja_madre):
     resultado_hijo1 = resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1)
     resultado_hijo2 = resultadoHijo(binario_hijo_2, lista_largo_variables_hijo_2)
 
+#  File "c:\Users\Jerem\Desktop\Proyecto JAVA\Genetic-Algorithm-Progra3-Esteban-Jeremy\main.py", line 271, in prueba1
+#    resultado_hijo1[0] = ponerPuntoPosicion(resultado_hijo1[0], punto_direccion_y_desviacion_1[0])
+#  IndexError: list index out of range
+
     #Pongo el punto de desviacion para hijo 1
     resultado_hijo1[0] = ponerPuntoPosicion(resultado_hijo1[0], punto_direccion_y_desviacion_1[0])
     #Pongo el punto de angulo para hijo 1
     resultado_hijo1[3] = ponerPuntoPosicion(resultado_hijo1[3], punto_direccion_y_desviacion_1[1])
+    #Pongo el punto de tolerancia para hijo 1
+    resultado_hijo1[2] = ponerPuntoPosicion(resultado_hijo1[2], punto_direccion_y_desviacion_1[2])
 
     #Pongo el punto de desviacion para hijo 2
     resultado_hijo2[0] = ponerPuntoPosicion(resultado_hijo2[0], punto_direccion_y_desviacion_2[0])
     #Pongo el punto de angulo para hijo 2
     resultado_hijo2[3] = ponerPuntoPosicion(resultado_hijo2[3], punto_direccion_y_desviacion_2[1])
+    #Pongo el punto de tolerancia para hijo 2
+    resultado_hijo2[2] = ponerPuntoPosicion(resultado_hijo2[2], punto_direccion_y_desviacion_2[2])
+
 
     resultado_enteros_hijo1 = obtengoNumerosEnteros(resultado_hijo1)
     resultado_enteros_hijo2 = obtengoNumerosEnteros(resultado_hijo2)
@@ -305,13 +323,7 @@ def obtengoNumerosEnteros(pLista):
     lista = []
 
     for i in range(len(pLista)):
-        if i == 0:
-            p1, p2 = pLista[i].split(".")
-            r1 = int(p1, 2)
-            r2 = int(p2, 2)
-            rr = str(r1)+"."+str(r2)
-            lista.append(float(rr))
-        elif i == 3:
+        if i == 0 or i == 2 or i == 3:
             p1, p2 = pLista[i].split(".")
             r1 = int(p1, 2)
             r2 = int(p2, 2)
@@ -332,8 +344,7 @@ def sumaTotal(lista):
 def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
     resultado_hijo1 = []
     contador = 0
-    #......................................
-    conter = 1
+    conter = 0
     nueva_variable = ""
     tamano = 0
     largo_binario = len(binario_hijo_1)
@@ -341,10 +352,10 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
         
     if tamano_total > largo_binario:
         tamano = tamano_total-largo_binario
-        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] -= tamano
+        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] -= tamano + 1
     elif tamano_total < largo_binario:
         tamano = largo_binario-tamano_total
-        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] += tamano
+        lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] += tamano - 1
 
     for i in range(largo_binario):
         variable = lista_largo_variables_hijo_1[contador]
@@ -354,8 +365,7 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
         elif conter == variable:
             contador += 1
             resultado_hijo1.append(nueva_variable)
-            nueva_variable = ""
-            #..............................
+            nueva_variable = binario_hijo_1[i]
             conter = 1
         else:
             nueva_variable += binario_hijo_1[i]

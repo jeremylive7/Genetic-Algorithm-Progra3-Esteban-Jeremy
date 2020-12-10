@@ -63,13 +63,15 @@ class Cruce:
         cantidad = 2
 
         direccion_favorita_hijo_con_punto = Cruce.float_bin(direccion_favorita, cantidad)
-        print("direccion.. %s" % direccion_favorita_hijo_con_punto)
+        print("hijo1 direccion: %s" % direccion_favorita_hijo_con_punto)
         color_favorito_hijo = Cruce.convertIntToBinario(color_favorito)
+        print("hijo1 color: %s" % color_favorito_hijo)
         tolerancia_al_color_hijo_con_punto = Cruce.float_bin(tolerancia_al_color, cantidad)
-        print("tolerancia... %s" % tolerancia_al_color_hijo_con_punto)
+        print("hijo1 tolerancia: %s" % tolerancia_al_color_hijo_con_punto)
         angulo_desviacion_hijo_con_punto = Cruce.float_bin(angulo_desviacion, cantidad)
-        print("angulo... %s" % angulo_desviacion_hijo_con_punto)
+        print("hijo1 angulo: %s" % angulo_desviacion_hijo_con_punto)
         distancia_maxima_hijo = Cruce.convertIntToBinario(distancia_maxima)
+        print("hijo1 distancia: %s" % distancia_maxima_hijo)
 
         posicion_punto_direccion = Cruce.puntoPosicion(direccion_favorita_hijo_con_punto)
         posicion_punto_desviacion = Cruce.puntoPosicion(angulo_desviacion_hijo_con_punto)
@@ -133,14 +135,16 @@ class Cruce:
 
         cantidad = 2
 
-        direccion_favorita_hijo_con_punto = Cruce.float_bin(
-            direccion_favorita, cantidad)
+        direccion_favorita_hijo_con_punto = Cruce.float_bin(direccion_favorita, cantidad)
+        print("hijo2 direccion: %s" % direccion_favorita_hijo_con_punto)
         color_favorito_hijo = Cruce.convertIntToBinario(color_favorito)
-        tolerancia_al_color_hijo_con_punto = Cruce.float_bin(
-            tolerancia_al_color, cantidad)
-        angulo_desviacion_hijo_con_punto = Cruce.float_bin(
-            angulo_desviacion, cantidad)
+        print("hijo2 color: %s" % color_favorito_hijo)
+        tolerancia_al_color_hijo_con_punto = Cruce.float_bin(tolerancia_al_color, cantidad)
+        print("hijo2 tolerancia: %s" % tolerancia_al_color_hijo_con_punto)
+        angulo_desviacion_hijo_con_punto = Cruce.float_bin(angulo_desviacion, cantidad)
+        print("hijo2 angulo: %s" % angulo_desviacion_hijo_con_punto)
         distancia_maxima_hijo = Cruce.convertIntToBinario(distancia_maxima)
+        print("hijo2 distancia: %s" % distancia_maxima_hijo)
 
         posicion_punto_direccion = Cruce.puntoPosicion(
             direccion_favorita_hijo_con_punto)
