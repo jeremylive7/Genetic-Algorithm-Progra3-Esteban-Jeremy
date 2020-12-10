@@ -1,7 +1,7 @@
-import math
 from math import pi, sin, cos
 import random
 from abc import abstractmethod
+from Cruce import Cruce
 
 CANT_ABEJAS = 20
 CANT_FLORES = 50
@@ -24,6 +24,24 @@ Tipo de recorrido:
     3-) ...
 """
 class AbejaIndividuo:    
+    def __init__(self):
+        direccion_random_indice = random.randint(0, largo_angulos_posibles)
+        direccion_random = angulos_direcciones[direccion_random_indice]
+        color_random_indice = random.randint(0, largo_colores_rgb)
+        color_random = colores_rgb[color_random_indice]
+
+        direccion_favorita = direccion_random
+        color_favorito = color_random
+        tolerancia_al_color = random.randint(0,1)
+        angulo_desviacion = random.randint(30, 40)
+        distancia_maxima = random.randint(0, 71)
+   
+        self.direccion_favorita = direccion_favorita
+        self.color_favorito = color_favorito
+        self.tolerancia_al_color = tolerancia_al_color
+        self.angulo_desviacion = angulo_desviacion
+        self.distancia_maxima = distancia_maxima
+    """
     def __init__(self, padre=None, madre=None):
         direccion_random_indice = random.randint(0, largo_angulos_posibles)
         direccion_random = angulos_direcciones[direccion_random_indice]
@@ -32,27 +50,27 @@ class AbejaIndividuo:
 
         if padre == None or madre == None:
             #desviacionMaxima = random.randit(30, 40)
-            direccionFavorita = direccion_random
-            colorFavorito = color_random
-            toleranciaAlColor = random.randint(0,1)
-            anguloDesviacion = random.randint(30, 40)
-            distanciaMaxima = random.randint(0, 71)
-            recorrido_de_flores = []  
-            nectar_recolectado = []
-            
+            direccion_favorita = direccion_random
+            color_favorito = color_random
+            tolerancia_al_color = random.randint(0, 1)
+            angulo_desviacion = random.randint(30, 40)
+            distancia_maxima = random.randint(0, 71)
+            #recorrido_de_flores = []
+            #nectar_recolectado = []
+
             #self.desviacionMaxima = desviacionMaxima
-            self.direccionFavorita = direccionFavorita
-            self.colorFavorito = colorFavorito
-            self.toleranciaAlColor = toleranciaAlColor
-            self.anguloDesviacion = anguloDesviacion
-            self.distanciaMaxima = distanciaMaxima
-            self.recorrido = recorrido_de_flores
-            self.nectar_recolectado = nectar_recolectado
-            
+            self.direccion_favorita = direccion_favorita
+            self.color_favorito = color_favorito
+            self.tolerancia_al_color = tolerancia_al_color
+            self.angulo_desviacion = angulo_desviacion
+            self.distancia_maxima = distancia_maxima
+            #self.recorrido = recorrido_de_flores
+            #self.nectar_recolectado = nectar_recolectado
+
         else:
             return 0
             #reproducir a papá y mamá XD
-
+    """
     @abstractmethod
     def simularRecorrido(self):
         """
@@ -148,156 +166,109 @@ Setup
 ancho = 100
 alto = 100
 
-def float_bin(number, places=3):
-    whole, dec = str(number).split(".")
-    whole = int(whole)
-    dec = int(dec)
-    res = bin(whole).lstrip("0b") + "."
 
-    for x in range(places):
-        whole, dec = str((decimal_converter(dec)) * 2).split(".")
-        dec = int(dec)
-        res += whole
-
-    return res
-
-def decimal_converter(num):
-    while num > 1:
-        num /= 10
-    return num
-
-def get_float(x, nP): return '{0:.{n}f}'.format(x, n=nP)
-
-def get_bin(x): return format(x, 'b')
-
-def convertColorIntToBinario(pColor: int):
-    return get_bin(pColor)
-
-
-def convertColorBinarioToInt(pColor):
-    return int(pColor, 2)
-
-def createColor(pColor1, pColor2):
-    binario_1 = []
-    binario_2 = []
-    binario_hijo = []
-
-    for i in pColor1:
-        binario_1.append(convertColorIntToBinario(i))
-
-    for o in pColor2:
-        binario_2.append(convertColorIntToBinario(o))
-
-    for u in range(len(binario_1)):
-        binario_11 = binario_1[u]
-        binario_22 = binario_2[u]
-
-        binario_slice1 = []
-        binario_slice2 = []
-
-        largo1 = int(len(binario_11)/2)
-        largo2 = int(len(binario_22)/2)
-
-        if largo1 % 2 != 0:
-            binario_slice1 = [binario_11[i:i+largo1+1]
-                for i in range(0, len(binario_11), largo1+1)]
-        else:
-            binario_slice1 = [binario_11[i:i+largo1]
-                for i in range(0, len(binario_11), largo1)]
-
-        if largo2 % 2 != 0:
-            binario_slice2 = [binario_22[i:i+largo2+1]
-                for i in range(0, len(binario_22), largo2+1)]
-        else:
-            binario_slice2 = [binario_22[i:i+largo2]
-                for i in range(0, len(binario_22), largo2)]
-        
-        binario_hijo.append(
-            convertColorBinarioToInt(binario_slice1[0]+binario_slice2[1]))
-
-    return binario_hijo
-
-def creoAnguloHijo(direccion_1, direccion_2):
-    cantidad_decimales = 4
-
-    dic1 = float_bin(direccion_1, cantidad_decimales)
-    dic2 = float_bin(direccion_2, cantidad_decimales)
-    
-    dic11 = []
-    dic22 = []
-
-    num_izq_1, num_der_1 = dic1.split(".")
-    num_izq_2, num_der_2 = dic2.split(".")
-
-    dic11.append(num_izq_1)
-    dic11.append(num_der_1)
-
-    dic22.append(num_izq_2)
-    dic22.append(num_der_2)
-
-    int_1 = int(dic11[0],2)
-    int_2 = int(dic22[1], 2)
-    result = str(int_1)+"."+str(int_2)
-
-    return result
-
-def creoHijo(x, y):
-    angulo1 = convertColorIntToBinario(x)
-    angulo2 = convertColorIntToBinario(y)
-    angulo11 = []
-    angulo22 = []
-
-    largo1 = int(len(angulo1)/2)
-    largo2 = int(len(angulo2)/2)
-
-    if largo1 % 2 != 0:
-        angulo11 = [angulo1[i:i+largo1+1] 
-                for i in range(0, len(angulo1), largo1+1)]
-    else:
-        angulo11 = [angulo1[i:i+largo1]
-                for i in range(0, len(angulo1), largo1)]
-
-    if largo2 % 2 != 0:
-        angulo22 = [angulo2[i:i+largo2+1]
-                for i in range(0, len(angulo2), largo2+1)]
-    else:
-        angulo22 = [angulo2[i:i+largo2]
-                for i in range(0, len(angulo2), largo2)]
-
-
-    result = convertColorBinarioToInt(angulo11[0]+angulo22[1])
-
-    return result
 
 """
 Prueba1 pasa todos los parametros de padre y madre a binario para hacer el cruce.
 Agarra la primera mitad del padre y la segunda mitad de la madre.
 """
 
-def prueba1(abeja_1, abeja_2):
-    #Entra sin datos...????    
-    #abeja_1.distanciaMaxima
-    #abeja_2.distanciaMaxima
+def prueba1(abeja_padre, abeja_madre):
+    
+    lista_padre = Cruce.creoListaDeBits(abeja_padre)
+    lista_madre = Cruce.creoListaDeBits2(abeja_madre)
 
-    binario_hijo = []
+    lista_de_bits_padre = lista_padre[0]
+    lista_de_bits_madre = lista_madre[0]
 
-    direccion_favorita_hijo = creoAnguloHijo(pi*3/4, pi/2)
-    binario_hijo.append(direccion_favorita_hijo)
+    print("Padre: %s" % lista_de_bits_padre)
+    print("Madre: %s" % lista_de_bits_madre)
 
-    color_hijo = createColor((255, 128, 200), (100, 150, 125))
-    binario_hijo.append(color_hijo)
+    posicion_punto_direccion_padre = lista_padre[1]
+    posicion_punto_direccion_madre = lista_madre[1]
 
-    tolerancia_hijo = creoHijo(20, 22)
-    binario_hijo.append(tolerancia_hijo)
+    posicion_punto_desviacion_padre = lista_padre[2]
+    posicion_punto_desviacion_madre = lista_madre[2]
 
-    angulo_desviacion_hijo = creoAnguloHijo(30.567, 39.2436)
-    binario_hijo.append(angulo_desviacion_hijo)
+    lista_largo_variables_padre_por_parametro = lista_padre[3]
+    lista_largo_variables_madre_por_parametro = lista_madre[3]
 
-    distanciaMaxima_hijo = creoHijo(40, 56)
-    binario_hijo.append(distanciaMaxima_hijo)
+    lista_largo_variables_padre = lista_padre[4]
+    lista_largo_variables_madre = lista_madre[4]
 
+    largo1 = len(lista_de_bits_padre)
+    largo2 = len(lista_de_bits_madre)
 
-    return binario_hijo
+    if largo1 <= largo2:
+        rango_random_pivote = largo1
+    else:
+        rango_random_pivote = largo2
+
+    pivote_random = random.randint(0, rango_random_pivote-1)
+
+    print("Pivote: %s" % pivote_random)
+
+    parte_del_padre = lista_de_bits_padre[:pivote_random]
+    parte_de_la_madre = lista_de_bits_madre[pivote_random:]
+
+    result = []
+    binario_hijo_1 = ""
+    binario_hijo_2 = ""
+    lista_largo_variables_hijo_1 = []
+    lista_largo_variables_hijo_2 = []
+    punto_direccion_y_desviacion_1 = []
+    punto_direccion_y_desviacion_2 = []
+
+    if pivote_random == 0:
+        binario_hijo_1 += lista_de_bits_padre
+        lista_largo_variables_hijo_1 = lista_largo_variables_padre_por_parametro
+        punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
+        punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_padre)
+        binario_hijo_2 += lista_de_bits_madre
+        lista_largo_variables_hijo_2 = lista_largo_variables_madre_por_parametro
+        punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
+        punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_madre)
+    elif pivote_random == rango_random_pivote-1:
+        binario_hijo_1 += lista_de_bits_madre
+        lista_largo_variables_hijo_2 = lista_largo_variables_madre_por_parametro
+        punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
+        punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_madre)
+        binario_hijo_2 += lista_de_bits_padre
+        lista_largo_variables_hijo_1 = lista_largo_variables_padre_por_parametro
+        punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
+        punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_padre)
+    else:
+        flag = False
+        for i in range(len(lista_largo_variables_padre)):
+            if i == 0:
+                pass
+            if pivote_random >= lista_largo_variables_padre[i-1] and pivote_random <= lista_largo_variables_padre[i] and flag == False:
+                flag = True
+                binario_hijo_1 += parte_del_padre
+                binario_hijo_1 += parte_de_la_madre
+                lista_largo_variables_hijo_1 += lista_largo_variables_padre_por_parametro[:i]
+                lista_largo_variables_hijo_1 += lista_largo_variables_madre_por_parametro[i:]
+                punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
+                punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_madre)
+                
+                binario_hijo_2 += parte_de_la_madre
+                binario_hijo_2 += parte_del_padre
+                lista_largo_variables_hijo_2 += lista_largo_variables_madre_por_parametro[:i]
+                lista_largo_variables_hijo_2 += lista_largo_variables_padre_por_parametro[i:]
+                punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
+                punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_padre)
+
+    result.append(binario_hijo_1)
+    result.append(lista_largo_variables_hijo_1)
+    result.append(punto_direccion_y_desviacion_1)
+    result.append(binario_hijo_2)
+    result.append(lista_largo_variables_hijo_2)
+    result.append(punto_direccion_y_desviacion_2)
+
+    resultado_hijo1 = []
+    
+
+    return result
 
 #Inicializo abejas Padres
 abeja1 = AbejaIndividuo()
@@ -306,7 +277,7 @@ abeja2 = AbejaIndividuo()
 abeja_hijo = prueba1(abeja1, abeja2)
 
 for j in range(len(abeja_hijo)):
-    print("binario_hijo[%s]=%s" % (j, abeja_hijo[j]))
+    print("%s" % abeja_hijo[j])
 
 
 
