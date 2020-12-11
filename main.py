@@ -1,7 +1,6 @@
 from math import pi, sin, cos
 import random
-from abc import abstractmethod
-from Cruce import Cruce
+from abc import abstractclassmethod
 
 CANT_ABEJAS = 20
 CANT_FLORES = 50
