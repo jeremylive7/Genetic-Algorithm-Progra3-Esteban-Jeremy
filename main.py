@@ -5,7 +5,7 @@ import threading
 
 import math 
 from math import pi,sin,cos
-from random import random, choices,randint,uniform,seed
+from random import random, choices,randint,uniform,seed,choice
 from abc import abstractmethod
 
 #oeste,este,norte,sur
@@ -27,6 +27,9 @@ class Abeja:
         self.distancia_maxima = pDistancia_maxima
         self.recorrido=r
         self.polen=[]
+        self.cantFlores=0
+        self.madre=None
+        self.padre=None
     def cmpRecorrido(self,objetivo):
         return self.recorrido%3==objetivo
     def esAnchura(self):
@@ -47,15 +50,15 @@ class Abeja:
         la abeja
         """
         puntos=set()
-        if self.esAnchura():
+        if self.esProfundo():
             for a in frange(self.izq(),self.der(),0.01):
-                for r in range(self.distancia_maxima):
+                for r in range(int(self.distancia_maxima)):
                     puntos.add(XYfromPolar(CX,CY,r,a))
         elif self.esRandom():
             for _ in range(150):
                 puntos.add(self.randompos())
         else:
-            for r in range(self.distancia_maxima):
+            for r in range(int(self.distancia_maxima)):
                 for a in frange(self.izq(),self.der(),0.01):
                     puntos.add(XYfromPolar(CX,CY,r,a))
         return puntos
@@ -75,24 +78,29 @@ class Flor:
     def getMuestra(self):
         return self.muestras
 
-    def creoListaDeBitsFlor(flor):
+    def creoListaDeBitsFlor(self):
         PARAM_SIZE_1 = 16
         PARAM_SIZE_2 = 8
         listaGenesBits = ''
 
-        color = flor.color
-        radio = flor.radio
-        angulo = flor.angulo
+        color = self.color
+        radio = self.radio
+        angulo = self.angulo
 
-        codGeneticoColor = int(0xffff*color/(2*pi))
         codGeneticoRadio = int(0xff*radio)
         codGeneticoAngulo = int(0xffff*angulo/(2*pi))
 
-        listaGenesBits += f'{bin(codGeneticoColor[0]).replace("-", "")[2:].zfill(PARAM_SIZE_2)}{bin(codGeneticoColor[1])[2:].zfill(PARAM_SIZE_2)}{bin(codGeneticoColor[2])[2:].zfill(PARAM_SIZE_2)}'
+        listaGenesBits += f'{bin(color[0]).replace("-", "")[2:].zfill(PARAM_SIZE_2)}{bin(color[1])[2:].zfill(PARAM_SIZE_2)}{bin(color[2])[2:].zfill(PARAM_SIZE_2)}'
         listaGenesBits += bin(codGeneticoRadio)[2:].zfill(PARAM_SIZE_2)
         listaGenesBits += bin(codGeneticoAngulo)[2:].zfill(PARAM_SIZE_1)
 
         return listaGenesBits
+
+    def reproducir(self):
+        if len(self.muestras)==0:
+            return crearFlor()
+        madre=choice(self.muestras)
+        return Flor.transformarEnFlor(Flor.cruzarFlores(self,madre))
 
     def cruzarFlores(flor_padre, flor_madre):
         lista_padre = Flor.creoListaDeBitsFlor(flor_padre)
@@ -102,9 +110,10 @@ class Flor:
 
         binario_hijo_1 = lista_padre[:pivote_random] + \
             lista_madre[pivote_random:]
+        return binario_hijo_1
         binario_hijo_2 = lista_madre[:pivote_random] + \
             lista_padre[pivote_random:]
-
+        
         print("hijo1: %s" % binario_hijo_1)
         print("hijo2: %s" % binario_hijo_2)
 
@@ -116,11 +125,11 @@ class Flor:
         return result
 
     def transformarEnFlor(genoma):
-        codGeneticoColor = genoma[1:24]
+        codGeneticoColor = genoma[:24]
         codGeneticoRadio = genoma[24:32]
         codGeneticoAngulo = genoma[32:48]
-        f = Flor(
-            int(codGeneticoColor)/0xffff*2*pi,
+        return Flor(
+            (int(codGenetipcoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
             int(codGeneticoRadio)/0xff,
             int(codGeneticoAngulo)/0xffff*2*pi
         )
@@ -156,7 +165,7 @@ class Cruce():
 
         return listaGenesBits
 
-    def cruzarPadres(abeja_padre, abeja_madre):
+    def cruzarAbejas(abeja_padre, abeja_madre):
         lista_padre = Cruce.creoListaDeBits(abeja_padre)
         lista_madre = Cruce.creoListaDeBits(abeja_madre)
 
@@ -165,17 +174,15 @@ class Cruce():
         binario_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
         binario_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
 
-        print("hijo1: %s" % binario_hijo_1)
-        print("hijo2: %s" % binario_hijo_2)
+        a=[Cruce.transformarEnAbeja(binario_hijo_1),Cruce.transformarEnAbeja(binario_hijo_2)]
+        for abeja in a:
+            abeja.madre=abeja_madre
+            abeja.padre=abeja_padre
 
-        result = []
-        result.append(Cruce.transformarEnAbeja(binario_hijo_1))
-        result.append(Cruce.transformarEnAbeja(binario_hijo_2))
-
-        return result
+        return a
 
     def transformarEnAbeja(genoma):
-        codGeneticoDirFav=genoma[1:16]
+        codGeneticoDirFav=genoma[:16]
         codGeneticoTolerancia=genoma[16:24]
         codGeneticoColorFav=genoma[24:48]
         codGeneticoAnguloDesviacion=genoma[48:64]
@@ -265,7 +272,7 @@ def jardin():
                 abejas,
                 weights=pesos,
                 k=2)
-            nuevasAbejas.append(Abeja(abejaPadre,abejaMadre))
+            nuevasAbejas+=Cruce.cruzarAbejas(abejaPadre,abejaMadre)
         return nuevasAbejas
 
     cacheNormalizedFitness={}
@@ -288,7 +295,7 @@ def jardin():
     ]
     imprimirFlor(flores)
     for g in range(CANT_GENERACIONES):
-        #pintarFlores()
+        pintarFlores(flores)
         sumCalifGener=0
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
@@ -312,9 +319,8 @@ def jardin():
             flor.reproducir()
             for flor in flores
         ]
+        despintarViejasFlores(flores)
         flores=nuevasFlores
-        #despintarViejasFlores()
-
 def imprimirFlor(flor):
     for i in range(len(flor)):
         print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
@@ -330,7 +336,7 @@ largo_colores_rgb = len(colores_rgb)-1
 #Inicializo abejas Padres
 abeja1 = creoAbeja()
 abeja2 = creoAbeja()
-abeja_hijo = Cruce.cruzarPadres(abeja1, abeja2)
+abeja_hijo = Cruce.cruzarAbejas(abeja1, abeja2)
 
 for j in range(len(abeja_hijo)):
     if j == 0:
@@ -389,6 +395,14 @@ pygame.display.set_caption("La colmena")
 clock = pygame.time.Clock()
 seed()
 
+def pintarFlores(flores):
+    global px
+    for flor in flores:
+        x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
+        if x<100 and x>=0 and y<100 and y>=0:
+            px[x][y]=flor.color
+def despintarViejasFlores(flores):
+    screen.fill((0, 0, 0))
 #Colmena
 px[50][50] = (255, 0, 0)
 
