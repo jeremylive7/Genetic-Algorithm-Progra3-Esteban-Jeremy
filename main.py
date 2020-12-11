@@ -1,12 +1,17 @@
+import pygame
+from pygame.locals import *
+import sys
+import threading
+
 import math 
 from math import pi,sin,cos
-from random import random, choices
+from random import random, choices,randint,uniform,seed
 from abc import abstractmethod
 
 #oeste,este,norte,sur
 angulos_direcciones = [0, pi*3/4, pi/2, pi/4, pi, -pi/4, -pi/2, -pi*3/4]
 largo_angulos_posibles = len(angulos_direcciones)-1
-inicial_random_indice = random.randint(0, largo_angulos_posibles)
+inicial_random_indice = randint(0, largo_angulos_posibles)
 inicial_random = angulos_direcciones[inicial_random_indice]
 def frange(inicio,fin,step):
     return [inicio + i*step for i in range((fin-inicio)/step)]
@@ -14,28 +19,12 @@ def frange(inicio,fin,step):
 Genetic Logic
 """
 class Abeja:
-    def __init__(self,padre=None,madre=None):
-        if padre==None or madre==None:
-            desviacionMaxima=0
-            direccionFavorita=inicial_random
-            colorFavorito=(0,0,255)
-            toleranciaAlColor=0
-            anguloDesviacion=0
-            recorrido=random()*(2**8-1)#2=random
-            nectar_recolectado=[]
-            #distanciaMaxima=distanciaMax(lado_escogido)
-            distanciaMaxima=random.randint(0,71)
-            self.desviacionMaxima=desviacionMaxima
-            self.direccionFavorita=direccionFavorita
-            self.colorFavorito=colorFavorito
-            self.toleranciaAlColor=toleranciaAlColor
-            self.anguloDesviacion=anguloDesviacion
-            self.recorrido=recorrido
-            self.nectar_recolectado=nectar_recolectado
-            self.distanciaMaxima=distanciaMaxima
-        else:
-            return 0
-            #reproducir a papá y mamá XD
+    def __init__(self, pDireccion_favorita, pColor_favorito, pTolerancia_al_color, pAngulo_desviacion, pDistancia_maxima):
+        self.direccion_favorita = pDireccion_favorita
+        self.color_favorito = pColor_favorito
+        self.tolerancia_al_color = pTolerancia_al_color
+        self.angulo_desviacion = pAngulo_desviacion
+        self.distancia_maxima = pDistancia_maxima
     def cmpRecorrido(self,objetivo):
         return self.recorrido%3==objetivo
     def esAnchura(self):
@@ -75,12 +64,11 @@ class Abeja:
 Garden Logic
 """
 class Flor:
-    def __init__(self, pRadio, pAngulo, pMuestras):
+    def __init__(self,pColor, pRadio, pAngulo):
+        self.color = pColor
         self.radio = pRadio
         self.angulo = pAngulo
-        self.muestras = pMuestras
-        self.x=int(random()*100)
-        self.y=int(random()*100)
+        self.muestras = []#pMuestras
         
 class Cruce():
 
@@ -115,7 +103,7 @@ class Cruce():
         lista_padre = Cruce.creoListaDeBits(abeja_padre)
         lista_madre = Cruce.creoListaDeBits(abeja_madre)
 
-        pivote_random = random.randint(0, len(lista_padre)-1)
+        pivote_random = randint(0, len(lista_padre)-1)
 
         binario_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
         binario_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
@@ -143,19 +131,24 @@ class Cruce():
             int(codGeneticoDistanciaMaxima, 2)/0xff*70.71)
 
         return a
-
+def crearFlor():
+    return Flor(
+        colores_rgb[randint(0, largo_colores_rgb)],
+        randint(0, 71),
+        uniform(0, 1)*2*pi
+    )
 def creoAbeja():
 
-    direccion_random_indice = random.randint(0, largo_angulos_posibles)
+    direccion_random_indice = randint(0, largo_angulos_posibles)
     direccion_random = angulos_direcciones[direccion_random_indice]
-    color_random_indice = random.randint(0, largo_colores_rgb)
+    color_random_indice = randint(0, largo_colores_rgb)
     color_random = colores_rgb[color_random_indice]
 
     direccion_favorita = direccion_random
     color_favorito = color_random
-    tolerancia_al_color = random.randint(0, 1)
-    angulo_desviacion = random.randint(30, 40)
-    distancia_maxima = random.randint(0, 71)
+    tolerancia_al_color = uniform(0, 1)
+    angulo_desviacion = random()*pi/6
+    distancia_maxima = randint(0, 71)
 
     return Abeja(direccion_favorita, color_favorito, tolerancia_al_color, angulo_desviacion, distancia_maxima)
 
@@ -223,13 +216,14 @@ def jardin():
                 return flor
         return None
     abejas=[
-        Abeja()
+        creoAbeja()
         for _ in range(CANT_ABEJAS)
     ]
     flores=[
-        Flor()
+        crearFlor()
         for _ in range(CANT_FLORES)
     ]
+    imprimirFlor(flores)
     for g in range(CANT_GENERACIONES):
         #pintarFlores()
         sumCalifGener=0
@@ -258,8 +252,9 @@ def jardin():
         flores=nuevasFlores
         #despintarViejasFlores()
 
-        
-
+def imprimirFlor(flor):
+    for i in range(len(flor)):
+        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
 
 #oeste,este,norte,sur
 angulos_direcciones = [0, pi*3/4, pi/2, pi/4, pi, -pi/4, -pi/2, -pi*3/4]
@@ -282,34 +277,6 @@ for j in range(len(abeja_hijo)):
         print("Variables hijo2: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
             abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
 
-
-
-
-def convertColorIntToBinario(pColor:int):
-    return int(str(pColor),2)
-
-def convertColorBinarioToInt(pColor:int):
-    return int(str(pColor),2)
-
-def createColor(pColor):
-    colorBinario = []
-    for i in pColor:
-        colorBinario.append(convertColorIntToBinario(i))
-
-    for j in colorBinario:
-        print("ColorBinario-%s"%colorBinario[j])
-    
-    #Hacer el cruce y mutacion.
-    #...
-
-def prueba1():
-    createColor((0,0,255))
-
-prueba1()
-
-"""
-Setup
-"""
 
 
 """ cromosomas de las abejas:
@@ -343,3 +310,37 @@ def hayEvolucion(abejas):
         suma+=pow(pow(calificacion(abeja.padre)-calificacion(abeja),2)+
             pow(calificacion(abeja.madre)-calificacion(abeja),2),0.5)
     return suma/CANT_ABEJAS>MARGEN_EVOLUCION
+
+
+"""
+Setup
+"""
+
+ancho = 100
+alto = 100
+pygame.init()
+screen = pygame.display.set_mode((ancho, alto))
+screen.fill((0, 0, 0))
+px = pygame.PixelArray(screen)
+pygame.display.set_caption("La colmena")
+clock = pygame.time.Clock()
+seed()
+
+#Colmena
+px[50][50] = (255, 0, 0)
+
+t = threading.Thread(target=jardin)
+t.setDaemon(True)
+t.start()
+
+done = False
+while not done:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            donde = True
+        if event.type == pygame.KEYDOWN:
+            pass
+    pygame.display.update()
+    clock.tick(60)
+pygame.quit()
+quit()
