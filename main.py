@@ -113,49 +113,67 @@ def jardin():
         reproducirAbejas(abejas)  # debe conservarse el linaje
         flores = nuevasFlores
 
+class Cruce():
 
-"""
-Setup
-"""
-ancho = 100
-alto = 100
+    def creoListaDeBits(abeja):
+        PARAM_SIZE_1 = 16
+        PARAM_SIZE_2 = 8
+        listaGenesBits = ''
 
+        direccion_favorita = abeja.direccion_favorita
+        color_favorito = abeja.color_favorito
+        tolerancia_al_color = abeja.tolerancia_al_color
+        angulo_desviacion = abeja.angulo_desviacion
+        distancia_maxima = abeja.distancia_maxima
 
+        # ! Debe estar entre 0 y 2*pi
+        codGeneticoDirFav = int(0xffff*direccion_favorita/(2*pi))
+        codGeneticoTolerancia = int(0xff*tolerancia_al_color)
+        codGeneticoAnguloDesviacion = int(0xffff*angulo_desviacion/(2*pi))
+        codGeneticoDistanciaMaxima = int(0xff*distancia_maxima/70.71)
 
-"""
-Prueba1 pasa todos los parametros de padre y madre a binario para hacer el cruce.
-Agarra la primera mitad del padre y la segunda mitad de la madre.
-"""
+        listaGenesBits += bin(codGeneticoDirFav).replace("-","")[2:].zfill(PARAM_SIZE_1)
+        listaGenesBits += bin(codGeneticoTolerancia)[2:].zfill(PARAM_SIZE_2)
+        listaGenesBits += f'{bin(color_favorito[0])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[1])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[2])[2:].zfill(PARAM_SIZE_2)}'
+        listaGenesBits += bin(codGeneticoAnguloDesviacion)[
+            2:].zfill(PARAM_SIZE_1)
+        listaGenesBits += bin(codGeneticoDistanciaMaxima)[
+            2:].zfill(PARAM_SIZE_2)
 
-def cruzarPadres(abeja_padre, abeja_madre):
-    lista_padre = Cruce.creoListaDeBits(abeja_padre)
-    lista_madre = Cruce.creoListaDeBits(abeja_madre)
+        return listaGenesBits
 
-    pivote_random = random.randint(0, len(lista_padre)-1)
+    def cruzarPadres(abeja_padre, abeja_madre):
+        lista_padre = Cruce.creoListaDeBits(abeja_padre)
+        lista_madre = Cruce.creoListaDeBits(abeja_madre)
 
-    binario_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
-    binario_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
+        pivote_random = random.randint(0, len(lista_padre)-1)
 
-    result = []
-    result.append(transformarEnAbeja(binario_hijo_1))
-    result.append(transformarEnAbeja(binario_hijo_2))
+        binario_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
+        binario_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
 
-    return result
+        print("hijo1: %s" % binario_hijo_1)
+        print("hijo2: %s" % binario_hijo_2)
 
-def transformarEnAbeja(genoma):
-    codGeneticoDirFav=genoma[1:16]
-    codGeneticoTolerancia=genoma[16:24]
-    codGeneticoColorFav=genoma[24:48]
-    codGeneticoAnguloDesviacion=genoma[48:64]
-    codGeneticoDistanciaMaxima=genoma[64:72]
-    a=AbejaIndividuo(
-        int(codGeneticoDirFav,2)/0xffff*2*pi,
-        (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
-        int(codGeneticoTolerancia,2)/0xff,
-        int(codGeneticoAnguloDesviacion, 2)/0xffff*2*pi,
-        int(codGeneticoDistanciaMaxima, 2)/0xff*70.71)
+        result = []
+        result.append(Cruce.transformarEnAbeja(binario_hijo_1))
+        result.append(Cruce.transformarEnAbeja(binario_hijo_2))
 
-    return a
+        return result
+
+    def transformarEnAbeja(genoma):
+        codGeneticoDirFav=genoma[1:16]
+        codGeneticoTolerancia=genoma[16:24]
+        codGeneticoColorFav=genoma[24:48]
+        codGeneticoAnguloDesviacion=genoma[48:64]
+        codGeneticoDistanciaMaxima=genoma[64:72]
+        a=AbejaIndividuo(
+            int(codGeneticoDirFav,2)/0xffff*2*pi,
+            (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
+            int(codGeneticoTolerancia,2)/0xff,
+            int(codGeneticoAnguloDesviacion, 2)/0xffff*2*pi,
+            int(codGeneticoDistanciaMaxima, 2)/0xff*70.71)
+
+        return a
 
 def creoAbeja():
 
@@ -184,7 +202,7 @@ largo_colores_rgb = len(colores_rgb)-1
 #Inicializo abejas Padres
 abeja1 = creoAbeja()
 abeja2 = creoAbeja()
-abeja_hijo = cruzarPadres(abeja1, abeja2)
+abeja_hijo = Cruce.cruzarPadres(abeja1, abeja2)
 
 for j in range(len(abeja_hijo)):
     if j == 0:
@@ -193,3 +211,10 @@ for j in range(len(abeja_hijo)):
     else:
         print("Variables hijo2: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
             abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
+
+
+"""
+Setup
+"""
+ancho = 100
+alto = 100
