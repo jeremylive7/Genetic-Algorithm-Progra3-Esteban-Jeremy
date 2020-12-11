@@ -71,6 +71,60 @@ class Flor:
         self.radio = pRadio
         self.angulo = pAngulo
         self.muestras = []#pMuestras
+    
+    def getMuestra(self):
+        return self.muestras
+
+    def creoListaDeBitsFlor(flor):
+        PARAM_SIZE_1 = 16
+        PARAM_SIZE_2 = 8
+        listaGenesBits = ''
+
+        color = flor.color
+        radio = flor.radio
+        angulo = flor.angulo
+
+        codGeneticoColor = int(0xffff*color/(2*pi))
+        codGeneticoRadio = int(0xff*radio)
+        codGeneticoAngulo = int(0xffff*angulo/(2*pi))
+
+        listaGenesBits += f'{bin(codGeneticoColor[0]).replace("-", "")[2:].zfill(PARAM_SIZE_2)}{bin(codGeneticoColor[1])[2:].zfill(PARAM_SIZE_2)}{bin(codGeneticoColor[2])[2:].zfill(PARAM_SIZE_2)}'
+        listaGenesBits += bin(codGeneticoRadio)[2:].zfill(PARAM_SIZE_2)
+        listaGenesBits += bin(codGeneticoAngulo)[2:].zfill(PARAM_SIZE_1)
+
+        return listaGenesBits
+
+    def cruzarFlores(flor_padre, flor_madre):
+        lista_padre = Flor.creoListaDeBitsFlor(flor_padre)
+        lista_madre = Flor.creoListaDeBitsFlor(flor_madre)
+
+        pivote_random = randint(0, len(lista_padre)-1)
+
+        binario_hijo_1 = lista_padre[:pivote_random] + \
+            lista_madre[pivote_random:]
+        binario_hijo_2 = lista_madre[:pivote_random] + \
+            lista_padre[pivote_random:]
+
+        print("hijo1: %s" % binario_hijo_1)
+        print("hijo2: %s" % binario_hijo_2)
+
+        result = []
+
+        result.append(Flor.transformarEnFlor(binario_hijo_1))
+        result.append(Flor.transformarEnFlor(binario_hijo_2))
+
+        return result
+
+    def transformarEnFlor(genoma):
+        codGeneticoColor = genoma[1:24]
+        codGeneticoRadio = genoma[24:32]
+        codGeneticoAngulo = genoma[32:48]
+        f = Flor(
+            int(codGeneticoColor)/0xffff*2*pi,
+            int(codGeneticoRadio)/0xff,
+            int(codGeneticoAngulo)/0xffff*2*pi
+        )
+
         
 class Cruce():
 
@@ -245,7 +299,7 @@ def jardin():
                 flor=getFlor(punto)
                 if flor!=None:#Simular Interaccion entre la abeja y la flor
                     flor.muestras+=abeja.polen
-                    abeja.polen+=[flor.getMuestra()]
+                    abeja.polen+=[flor]
                     abeja.cantFlores+=1
                     distanciaRecorrida+=distancia(puntoAnterior,punto)#¡Duda!#
                 puntoAnterior=punto
