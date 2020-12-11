@@ -176,35 +176,16 @@ Agarra la primera mitad del padre y la segunda mitad de la madre.
 def prueba1(abeja_padre, abeja_madre):
     
     lista_padre = Cruce.creoListaDeBits(abeja_padre)
-    lista_madre = Cruce.creoListaDeBits2(abeja_madre)
+    lista_madre = Cruce.creoListaDeBits(abeja_madre)
 
-    lista_de_bits_padre = lista_padre[0]
-    lista_de_bits_madre = lista_madre[0]
+    print("Padre: %s" % lista_padre)
+    print("Madre: %s" % lista_madre)
 
-    print("Padre: %s" % lista_de_bits_padre)
-    print("Madre: %s" % lista_de_bits_madre)
-
-    posicion_punto_direccion_padre = lista_padre[1]
-    posicion_punto_direccion_madre = lista_madre[1]
-
-    posicion_punto_desviacion_padre = lista_padre[2]
-    posicion_punto_desviacion_madre = lista_madre[2]
-
-    lista_largo_variables_padre_por_parametro = lista_padre[3]
-    lista_largo_variables_madre_por_parametro = lista_madre[3]
-
-    lista_largo_variables_padre = lista_padre[4]
-    lista_largo_variables_madre = lista_madre[4]
-
-    posicion_punto_tolerancia_padre = lista_padre[5]
-    posicion_punto_tolerancia_madre = lista_madre[5]
-
-    largo1 = len(lista_de_bits_padre)
-    largo2 = len(lista_de_bits_madre)
+    largo1 = len(lista_padre)
+    largo2 = len(lista_madre)
 
     print("largo1 %s" % largo1)
     print("largo2 %s" % largo2)
-
 
     if largo1 <= largo2:
         rango_random_pivote = largo1
@@ -214,8 +195,8 @@ def prueba1(abeja_padre, abeja_madre):
     pivote_random = random.randint(0, rango_random_pivote-1)
     print("Pivote: %s" % pivote_random)
 
-    parte_del_padre = lista_de_bits_padre[:pivote_random]
-    parte_de_la_madre = lista_de_bits_madre[pivote_random:]
+    parte_del_padre = lista_padre[:pivote_random]
+    parte_de_la_madre = lista_madre[pivote_random:]
 
     print("parte_del_padre %s" % parte_del_padre)
     print("parte_de_la_madre %s" % parte_de_la_madre)
@@ -223,130 +204,17 @@ def prueba1(abeja_padre, abeja_madre):
     result = []
     binario_hijo_1 = ""
     binario_hijo_2 = ""
-    lista_largo_variables_hijo_1 = []
-    lista_largo_variables_hijo_2 = []
-    punto_direccion_y_desviacion_1 = []
-    punto_direccion_y_desviacion_2 = []
 
-    if pivote_random == 0:
-        binario_hijo_1 += lista_de_bits_padre
-        lista_largo_variables_hijo_1 = lista_largo_variables_padre_por_parametro
-        punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
-        punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_padre)
-        punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
-        binario_hijo_2 += lista_de_bits_madre
-        lista_largo_variables_hijo_2 = lista_largo_variables_madre_por_parametro
-        punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
-        punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_madre)
-        punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
-    elif pivote_random == rango_random_pivote-1:
-        binario_hijo_1 += lista_de_bits_madre
-        lista_largo_variables_hijo_2 = lista_largo_variables_madre_por_parametro
-        punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
-        punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_madre)
-        punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
-        binario_hijo_2 += lista_de_bits_padre
-        lista_largo_variables_hijo_1 = lista_largo_variables_padre_por_parametro
-        punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
-        punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_padre)
-        punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
-    else:
-        flag = False
-        print("........ %s" % lista_largo_variables_padre)
-        for i in range(len(lista_largo_variables_padre)):
-            if i == 0:
-                pass
-            #lista_largo_variables_padre_por_parametro[4, 12, 15, 22, 29]
-            #lista_largo_variables_madre_por_parametro[5, 11, 17, 27, 5]
-            #lista_largo_variables_hijo_1=[4, 12, 15, 22, 29]
-
-            #lista_largo_variables_padre[4, 17, 32, 54, 83]
-            #3 >= 4 && 3 <= 4 
-            if pivote_random >= lista_largo_variables_padre[i-1] and pivote_random <= lista_largo_variables_padre[i] and flag == False:
-                flag = True
-                binario_hijo_1 += parte_del_padre
-                binario_hijo_1 += parte_de_la_madre
-                lista_largo_variables_hijo_1 += lista_largo_variables_padre_por_parametro[:i]
-                lista_largo_variables_hijo_1 += lista_largo_variables_madre_por_parametro[i:]
-                punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
-                punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_madre)
-                punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
-                
-                binario_hijo_2 += parte_de_la_madre
-                binario_hijo_2 += parte_del_padre
-                lista_largo_variables_hijo_2 += lista_largo_variables_madre_por_parametro[:i]
-                lista_largo_variables_hijo_2 += lista_largo_variables_padre_por_parametro[i:]
-                punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
-                punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_padre)
-                punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
-            elif pivote_random < lista_largo_variables_padre[i-1] and flag == False:
-                flag = True
-                binario_hijo_1 += parte_del_padre
-                binario_hijo_1 += parte_de_la_madre
-                lista_largo_variables_hijo_1 += lista_largo_variables_padre_por_parametro[:i]
-                lista_largo_variables_hijo_1 += lista_largo_variables_madre_por_parametro[i:]
-                punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
-                punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_madre)
-                punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
-                
-                binario_hijo_2 += parte_de_la_madre
-                binario_hijo_2 += parte_del_padre
-                lista_largo_variables_hijo_2 += lista_largo_variables_madre_por_parametro[:i]
-                lista_largo_variables_hijo_2 += lista_largo_variables_padre_por_parametro[i:]
-                punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
-                punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_padre)
-                punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
-
-    print("hijo1 %s" % binario_hijo_1)
-    print("hijo2 %s" % binario_hijo_2)
+    binario_hijo_1 += parte_del_padre
+    binario_hijo_1 += parte_de_la_madre
+    
+    binario_hijo_2 += parte_de_la_madre
+    binario_hijo_2 += parte_del_padre
 
     result.append(binario_hijo_1)
-    result.append(lista_largo_variables_hijo_1)
-    result.append(punto_direccion_y_desviacion_1)
     result.append(binario_hijo_2)
-    result.append(lista_largo_variables_hijo_2)
-    result.append(punto_direccion_y_desviacion_2)
 
-    resultado_hijo1 = resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1)
-    resultado_hijo2 = resultadoHijo(binario_hijo_2, lista_largo_variables_hijo_2)
-
-#  File "c:\Users\Jerem\Desktop\Proyecto JAVA\Genetic-Algorithm-Progra3-Esteban-Jeremy\main.py", line 271, in prueba1
-#    resultado_hijo1[0] = ponerPuntoPosicion(resultado_hijo1[0], punto_direccion_y_desviacion_1[0])
-#  IndexError: list index out of range
-
-    #Pongo el punto de desviacion para hijo 1
-    resultado_hijo1[0] = ponerPuntoPosicion(resultado_hijo1[0], punto_direccion_y_desviacion_1[0])
-    #Pongo el punto de angulo para hijo 1
-    resultado_hijo1[3] = ponerPuntoPosicion(resultado_hijo1[3], punto_direccion_y_desviacion_1[1])
-    #Pongo el punto de tolerancia para hijo 1
-    resultado_hijo1[2] = ponerPuntoPosicion(resultado_hijo1[2], punto_direccion_y_desviacion_1[2])
-
-    #Pongo el punto de desviacion para hijo 2
-    resultado_hijo2[0] = ponerPuntoPosicion(resultado_hijo2[0], punto_direccion_y_desviacion_2[0])
-    #Pongo el punto de angulo para hijo 2
-    resultado_hijo2[3] = ponerPuntoPosicion(resultado_hijo2[3], punto_direccion_y_desviacion_2[1])
-    #Pongo el punto de tolerancia para hijo 2
-    resultado_hijo2[2] = ponerPuntoPosicion(resultado_hijo2[2], punto_direccion_y_desviacion_2[2])
-
-
-    resultado_enteros_hijo1 = obtengoNumerosEnteros(resultado_hijo1)
-    resultado_enteros_hijo2 = obtengoNumerosEnteros(resultado_hijo2)
-
-    resultado = []
-    resultado.append(resultado_enteros_hijo1)
-    resultado.append(resultado_enteros_hijo2)
-
-    print("hijo1 %s" % binario_hijo_1)
-    print("Lista largo de variables: %s" % lista_largo_variables_hijo_1)
-    print("Punto de distancia y desviacion: %s" % punto_direccion_y_desviacion_1)
-    print("Binario variables Hijo 1: %s" % resultado_hijo1)
-
-    print("hijo2 %s" % binario_hijo_2)
-    print("Lista largo de variables: %s" % lista_largo_variables_hijo_2)
-    print("Punto de distancia y desviacion: %s" % punto_direccion_y_desviacion_2)
-    print("Binario variables Hijo 2: %s" % resultado_hijo2)
-
-    return resultado
+    return result
 
 
 def ponerPuntoPosicion(pLista, pNum):
@@ -430,8 +298,10 @@ abeja_hijo = prueba1(abeja1, abeja2)
 for j in range(len(abeja_hijo)):
     if j == 0:
         print("Variables hijo1: %s" % abeja_hijo[j])
+        print("largo: %s" % len(abeja_hijo[j]))
     else:
         print("Variables hijo2: %s" % abeja_hijo[j])
+        print("largo: %s" % len(abeja_hijo[j]))
 
 
 """ cromosomas de las abejas:
