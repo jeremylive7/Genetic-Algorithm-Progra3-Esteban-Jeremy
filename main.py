@@ -2,6 +2,7 @@ import pygame
 from pygame.locals import *
 import sys
 import threading
+import statistics
 
 import math 
 from math import pi,sin,cos
@@ -129,7 +130,7 @@ class Flor:
         codGeneticoRadio = genoma[24:32]
         codGeneticoAngulo = genoma[32:48]
         return Flor(
-            (int(codGenetipcoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
+            (int(codGeneticoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
             int(codGeneticoRadio)/0xff,
             int(codGeneticoAngulo)/0xffff*2*pi
         )
@@ -170,7 +171,7 @@ class Cruce():
         lista_madre = Cruce.creoListaDeBits(abeja_madre)
 
         pivote_random = randint(0, len(lista_padre)-1)
-
+        
         binario_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
         binario_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
 
@@ -178,7 +179,10 @@ class Cruce():
         for abeja in a:
             abeja.madre=abeja_madre
             abeja.padre=abeja_padre
-
+        print("Padre: %s" % lista_padre)
+        print("Madre: %s" % lista_madre)
+        print("Hijo 1: %s" % binario_hijo_1)
+        print("Hijo 2: %s" % binario_hijo_2)
         return a
 
     def transformarEnAbeja(genoma):
@@ -200,7 +204,7 @@ class Cruce():
 def crearFlor():
     return Flor(
         colores_rgb[randint(0, largo_colores_rgb)],
-        randint(0, 71),
+        randint(0, 400),
         uniform(0, 1)*2*pi
     )
 def creoAbeja():
@@ -225,8 +229,8 @@ CANT_FLORES=50
 Q=1
 K=1
 MARGEN_EVOLUCION=2
-CX=50
-CY=50
+CX=400
+CY=400
 def XYfromPolar(oriX,oriY,r,a):
     """
     Desde el punto de origen (oriX,oriY), se calcula un punto a distancia R y a angulo A
@@ -273,6 +277,7 @@ def jardin():
                 weights=pesos,
                 k=2)
             nuevasAbejas+=Cruce.cruzarAbejas(abejaPadre,abejaMadre)
+          
         return nuevasAbejas
 
     cacheNormalizedFitness={}
@@ -297,6 +302,7 @@ def jardin():
     for g in range(CANT_GENERACIONES):
         pintarFlores(flores)
         sumCalifGener=0
+        totalGener=[]
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
             puntoAnterior=(CX,CY)
@@ -312,6 +318,7 @@ def jardin():
                 puntoAnterior=punto
             cacheCalif[abeja]=K*distanciaRecorrida/Q*abeja.cantFlores #Calificación bruta
             sumCalifGener+=cacheCalif[abeja]
+            totalGener.append(sumCalifGener)
         for abeja in abejas:
             cacheNormalizedFitness[abeja]=calificacion(abeja)/sumCalifGener #Calificacion relativa
         abejas=reproducirAbejas(abejas)
@@ -319,6 +326,35 @@ def jardin():
             flor.reproducir()
             for flor in flores
         ]
+        
+        lista = []
+
+        if len(totalGener) < 5:
+            for i in range(len(totalGener)-1):
+                lista.append(totalGener[i])
+            devEstandarAnterior = statistics.stdev(lista)
+        else:
+            for i in range(len(totalGener)-6, len(totalGener)-1):
+                lista.append(totalGener[i])
+            devEstandarAnterior = statistics.stdev(lista)
+
+        lista = []
+
+        if len(totalGener) < 5:
+            for i in range(len(totalGener)):
+                lista.append(totalGener[i])
+            devEstandar = statistics.stdev(lista)
+        else:
+            for i in range(len(totalGener)-5, len(totalGener)):
+                lista.append(totalGener[i])
+            devEstandar = statistics.stdev(lista)
+
+        if abs(devEstandarAnterior-devEstandar) < 2:
+            print("devEstandarAnterior %s" % devEstandarAnterior)
+            print("devEstandar %s" % devEstandar)
+            break
+
+
         despintarViejasFlores(flores)
         flores=nuevasFlores
 def imprimirFlor(flor):
@@ -334,6 +370,7 @@ colores_rgb = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 255, 
 largo_colores_rgb = len(colores_rgb)-1
 
 #Inicializo abejas Padres
+"""
 abeja1 = creoAbeja()
 abeja2 = creoAbeja()
 abeja_hijo = Cruce.cruzarAbejas(abeja1, abeja2)
@@ -345,7 +382,7 @@ for j in range(len(abeja_hijo)):
     else:
         print("Variables hijo2: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
             abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
-
+"""
 
 
 """ cromosomas de las abejas:
@@ -385,8 +422,8 @@ def hayEvolucion(abejas):
 Setup
 """
 
-ancho = 100
-alto = 100
+ancho = 800
+alto = 800
 pygame.init()
 screen = pygame.display.set_mode((ancho, alto))
 screen.fill((0, 0, 0))
@@ -399,12 +436,12 @@ def pintarFlores(flores):
     global px
     for flor in flores:
         x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
-        if x<100 and x>=0 and y<100 and y>=0:
+        if x<800 and x>=0 and y<800 and y>=0:
             px[x][y]=flor.color
 def despintarViejasFlores(flores):
     screen.fill((0, 0, 0))
 #Colmena
-px[50][50] = (255, 0, 0)
+px[400][400] = (255, 0, 0)
 
 t = threading.Thread(target=jardin)
 t.setDaemon(True)
