@@ -14,17 +14,19 @@ largo_angulos_posibles = len(angulos_direcciones)-1
 inicial_random_indice = randint(0, largo_angulos_posibles)
 inicial_random = angulos_direcciones[inicial_random_indice]
 def frange(inicio,fin,step):
-    return [inicio + i*step for i in range((fin-inicio)/step)]
+    return [inicio + i*step for i in range(int((fin-inicio)/step))]
 """
 Genetic Logic
 """
 class Abeja:
-    def __init__(self, pDireccion_favorita, pColor_favorito, pTolerancia_al_color, pAngulo_desviacion, pDistancia_maxima):
+    def __init__(self, pDireccion_favorita, pColor_favorito, pTolerancia_al_color, pAngulo_desviacion, pDistancia_maxima,r):
         self.direccion_favorita = pDireccion_favorita
         self.color_favorito = pColor_favorito
         self.tolerancia_al_color = pTolerancia_al_color
         self.angulo_desviacion = pAngulo_desviacion
         self.distancia_maxima = pDistancia_maxima
+        self.recorrido=r
+        self.polen=[]
     def cmpRecorrido(self,objetivo):
         return self.recorrido%3==objetivo
     def esAnchura(self):
@@ -34,11 +36,11 @@ class Abeja:
     def esProfundo(self):
         return self.cmpRecorrido(2)
     def randompos(self):
-        return randompos(self.distanciaMaxima,self.direccionFavorita,self.desviacionMaxima)
+        return randompos(self.distancia_maxima,self.direccion_favorita,self.angulo_desviacion)
     def izq(self):
-        return self.direccionFavorita-self.desviacionMaxima
+        return self.direccion_favorita-self.angulo_desviacion
     def der(self):
-        return self.direccionFavorita+self.desviacionMaxima
+        return self.direccion_favorita+self.angulo_desviacion
     def calcularRecorrido(self):
         """
         Crea una lista de puntos sobre los que hipotéticamente pasará
@@ -47,13 +49,13 @@ class Abeja:
         puntos=set()
         if self.esAnchura():
             for a in frange(self.izq(),self.der(),0.01):
-                for r in range(self.distanciaMaxima):
+                for r in range(self.distancia_maxima):
                     puntos.add(XYfromPolar(CX,CY,r,a))
         elif self.esRandom():
             for _ in range(150):
                 puntos.add(self.randompos())
         else:
-            for r in range(self.distanciaMaxima):
+            for r in range(self.distancia_maxima):
                 for a in frange(self.izq(),self.der(),0.01):
                     puntos.add(XYfromPolar(CX,CY,r,a))
         return puntos
@@ -88,7 +90,7 @@ class Cruce():
         codGeneticoTolerancia = int(0xff*tolerancia_al_color)
         codGeneticoAnguloDesviacion = int(0xffff*angulo_desviacion/(2*pi))
         codGeneticoDistanciaMaxima = int(0xff*distancia_maxima/70.71)
-
+        codGenRec=int(0xff*abeja.recorrido/3)
         listaGenesBits += bin(codGeneticoDirFav).replace("-","")[2:].zfill(PARAM_SIZE_1)
         listaGenesBits += bin(codGeneticoTolerancia)[2:].zfill(PARAM_SIZE_2)
         listaGenesBits += f'{bin(color_favorito[0])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[1])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[2])[2:].zfill(PARAM_SIZE_2)}'
@@ -96,6 +98,7 @@ class Cruce():
             2:].zfill(PARAM_SIZE_1)
         listaGenesBits += bin(codGeneticoDistanciaMaxima)[
             2:].zfill(PARAM_SIZE_2)
+        listaGenesBits += bin(codGenRec)[2:].zfill(PARAM_SIZE_2)
 
         return listaGenesBits
 
@@ -123,12 +126,14 @@ class Cruce():
         codGeneticoColorFav=genoma[24:48]
         codGeneticoAnguloDesviacion=genoma[48:64]
         codGeneticoDistanciaMaxima=genoma[64:72]
+        codGenRec=genoma[72:]
         a=Abeja(
             int(codGeneticoDirFav,2)/0xffff*2*pi,
             (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
             int(codGeneticoTolerancia,2)/0xff,
             int(codGeneticoAnguloDesviacion, 2)/0xffff*2*pi,
-            int(codGeneticoDistanciaMaxima, 2)/0xff*70.71)
+            int(codGeneticoDistanciaMaxima, 2)/0xff*70.71,
+            int(codGenRec,2)//0xff)
 
         return a
 def crearFlor():
@@ -149,12 +154,15 @@ def creoAbeja():
     tolerancia_al_color = uniform(0, 1)
     angulo_desviacion = random()*pi/6
     distancia_maxima = randint(0, 71)
+    r=randint(0,3)
 
-    return Abeja(direccion_favorita, color_favorito, tolerancia_al_color, angulo_desviacion, distancia_maxima)
+    return Abeja(direccion_favorita, color_favorito, tolerancia_al_color, angulo_desviacion, distancia_maxima,r)
 
 CANT_GENERACIONES=200
 CANT_ABEJAS=20
 CANT_FLORES=50
+Q=1
+K=1
 MARGEN_EVOLUCION=2
 CX=50
 CY=50
@@ -162,7 +170,7 @@ def XYfromPolar(oriX,oriY,r,a):
     """
     Desde el punto de origen (oriX,oriY), se calcula un punto a distancia R y a angulo A
     """
-    return (oriX+sin(a)*r,  oriY+cos(a)*r)
+    return (int(oriX+sin(a)*r),  int(oriY+cos(a)*r))
 def randompos(r,fav,mistake):
     distanciaDesdeElCentro=random()*r
     angulo=(fav-mistake)+random()*(2*mistake)
@@ -212,7 +220,8 @@ def jardin():
     def getFlor(punto):
         nonlocal flores
         for flor in flores:
-            if flor.x==punto[0] and flor.y==punto[1]:
+            x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
+            if int(x)==punto[0] and int(y)==punto[1]:
                 return flor
         return None
     abejas=[
