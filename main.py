@@ -133,7 +133,7 @@ class Cruce():
             int(codGeneticoTolerancia,2)/0xff,
             int(codGeneticoAnguloDesviacion, 2)/0xffff*2*pi,
             int(codGeneticoDistanciaMaxima, 2)/0xff*70.71,
-            int(codGenRec,2)//0xff)
+            int(codGenRec,2)%3)
 
         return a
 def crearFlor():
