@@ -202,6 +202,10 @@ def prueba1(abeja_padre, abeja_madre):
     largo1 = len(lista_de_bits_padre)
     largo2 = len(lista_de_bits_madre)
 
+    print("largo1 %s" % largo1)
+    print("largo2 %s" % largo2)
+
+
     if largo1 <= largo2:
         rango_random_pivote = largo1
     else:
@@ -212,6 +216,9 @@ def prueba1(abeja_padre, abeja_madre):
 
     parte_del_padre = lista_de_bits_padre[:pivote_random]
     parte_de_la_madre = lista_de_bits_madre[pivote_random:]
+
+    print("parte_del_padre %s" % parte_del_padre)
+    print("parte_de_la_madre %s" % parte_de_la_madre)
 
     result = []
     binario_hijo_1 = ""
@@ -245,9 +252,16 @@ def prueba1(abeja_padre, abeja_madre):
         punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
     else:
         flag = False
+        print("........ %s" % lista_largo_variables_padre)
         for i in range(len(lista_largo_variables_padre)):
             if i == 0:
                 pass
+            #lista_largo_variables_padre_por_parametro[4, 12, 15, 22, 29]
+            #lista_largo_variables_madre_por_parametro[5, 11, 17, 27, 5]
+            #lista_largo_variables_hijo_1=[4, 12, 15, 22, 29]
+
+            #lista_largo_variables_padre[4, 17, 32, 54, 83]
+            #3 >= 4 && 3 <= 4 
             if pivote_random >= lista_largo_variables_padre[i-1] and pivote_random <= lista_largo_variables_padre[i] and flag == False:
                 flag = True
                 binario_hijo_1 += parte_del_padre
@@ -265,6 +279,26 @@ def prueba1(abeja_padre, abeja_madre):
                 punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
                 punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_padre)
                 punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
+            elif pivote_random < lista_largo_variables_padre[i-1] and flag == False:
+                flag = True
+                binario_hijo_1 += parte_del_padre
+                binario_hijo_1 += parte_de_la_madre
+                lista_largo_variables_hijo_1 += lista_largo_variables_padre_por_parametro[:i]
+                lista_largo_variables_hijo_1 += lista_largo_variables_madre_por_parametro[i:]
+                punto_direccion_y_desviacion_1.append(posicion_punto_direccion_padre)
+                punto_direccion_y_desviacion_1.append(posicion_punto_desviacion_madre)
+                punto_direccion_y_desviacion_1.append(posicion_punto_tolerancia_padre)
+                
+                binario_hijo_2 += parte_de_la_madre
+                binario_hijo_2 += parte_del_padre
+                lista_largo_variables_hijo_2 += lista_largo_variables_madre_por_parametro[:i]
+                lista_largo_variables_hijo_2 += lista_largo_variables_padre_por_parametro[i:]
+                punto_direccion_y_desviacion_2.append(posicion_punto_direccion_madre)
+                punto_direccion_y_desviacion_2.append(posicion_punto_desviacion_padre)
+                punto_direccion_y_desviacion_2.append(posicion_punto_tolerancia_madre)
+
+    print("hijo1 %s" % binario_hijo_1)
+    print("hijo2 %s" % binario_hijo_2)
 
     result.append(binario_hijo_1)
     result.append(lista_largo_variables_hijo_1)
@@ -349,7 +383,10 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
     tamano = 0
     largo_binario = len(binario_hijo_1)
     tamano_total = sumaTotal(lista_largo_variables_hijo_1)
-        
+    
+    print("largo binario hijo 1: %s" % largo_binario)
+    print("tamano total hijo 1: %s" % tamano_total)
+
     if tamano_total > largo_binario:
         tamano = tamano_total-largo_binario
         lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] -= tamano + 1
@@ -357,6 +394,13 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
         tamano = largo_binario-tamano_total
         lista_largo_variables_hijo_1[len(lista_largo_variables_hijo_1)-1] += tamano - 1
 
+    #hijo1=111010101010101111111111
+    #largo_binario=25
+    #4...1+9+6=23
+    #nueva_variable="1110"
+    #lista_largo_variables_hijo_1=[4,7,1,9,6]
+    #lista_largo_variables_hijo_1[contador] = 4
+    #resultado_hijo1=["1110","1010010","1","10101010101","1010101"]
     for i in range(largo_binario):
         variable = lista_largo_variables_hijo_1[contador]
         if i == 0:
@@ -371,6 +415,9 @@ def resultadoHijo(binario_hijo_1, lista_largo_variables_hijo_1):
             nueva_variable += binario_hijo_1[i]
             conter += 1
 
+            if conter == variable and i == largo_binario-1:
+                resultado_hijo1.append(nueva_variable)
+
     return resultado_hijo1
 
 
@@ -381,7 +428,10 @@ abeja2 = AbejaIndividuo()
 abeja_hijo = prueba1(abeja1, abeja2)
 
 for j in range(len(abeja_hijo)):
-    print("Variables hijos: %s" % abeja_hijo[j])
+    if j == 0:
+        print("Variables hijo1: %s" % abeja_hijo[j])
+    else:
+        print("Variables hijo2: %s" % abeja_hijo[j])
 
 
 """ cromosomas de las abejas:
