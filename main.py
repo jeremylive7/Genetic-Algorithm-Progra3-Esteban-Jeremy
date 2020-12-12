@@ -321,7 +321,8 @@ def jardin():
             flor.reproducir()
             for flor in flores
         ]
-        
+        imprimirAbeja(abejas)
+        imprimirFlores(nuevasFlores)
         if probabilidadAdaptabilidad(totalGener) == True:
             break
 
@@ -372,6 +373,17 @@ def imprimirFlores(flor):
     for i in range(len(flor)):
         print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
             flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
+
+def imprimirAbeja(abeja_hijo):
+
+    for j in range(len(abeja_hijo)):
+        if j == 0:
+            print("Variables hijo1: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+                abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
+        else:
+            print("Variables hijo2: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+                abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
+
 
 """
 Setup
