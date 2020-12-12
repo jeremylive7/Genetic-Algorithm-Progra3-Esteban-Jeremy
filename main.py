@@ -1,21 +1,11 @@
 import pygame
 from pygame.locals import *
-import sys
 import threading
 import statistics
-
-import math 
-from math import pi,sin,cos
+from math import pi,sin,cos,sqrt, pow
 from random import random, choices,randint,uniform,seed,choice
 from abc import abstractmethod
 
-#oeste,este,norte,sur
-angulos_direcciones = [0, pi*3/4, pi/2, pi/4, pi, -pi/4, -pi/2, -pi*3/4]
-largo_angulos_posibles = len(angulos_direcciones)-1
-inicial_random_indice = randint(0, largo_angulos_posibles)
-inicial_random = angulos_direcciones[inicial_random_indice]
-def frange(inicio,fin,step):
-    return [inicio + i*step for i in range(int((fin-inicio)/step))]
 """
 Genetic Logic
 """
@@ -112,18 +102,6 @@ class Flor:
         binario_hijo_1 = lista_padre[:pivote_random] + \
             lista_madre[pivote_random:]
         return binario_hijo_1
-        binario_hijo_2 = lista_madre[:pivote_random] + \
-            lista_padre[pivote_random:]
-        
-        print("hijo1: %s" % binario_hijo_1)
-        print("hijo2: %s" % binario_hijo_2)
-
-        result = []
-
-        result.append(Flor.transformarEnFlor(binario_hijo_1))
-        result.append(Flor.transformarEnFlor(binario_hijo_2))
-
-        return result
 
     def transformarEnFlor(genoma):
         codGeneticoColor = genoma[:24]
@@ -179,10 +157,6 @@ class Cruce():
         for abeja in a:
             abeja.madre=abeja_madre
             abeja.padre=abeja_padre
-        print("Padre: %s" % lista_padre)
-        print("Madre: %s" % lista_madre)
-        print("Hijo 1: %s" % binario_hijo_1)
-        print("Hijo 2: %s" % binario_hijo_2)
         return a
 
     def transformarEnAbeja(genoma):
@@ -201,14 +175,16 @@ class Cruce():
             int(codGenRec,2)%3)
 
         return a
+
 def crearFlor():
+    limite =  int(sqrt(pow(mitadAncho, 2) + pow(mitadAncho, 2)))
     return Flor(
         colores_rgb[randint(0, largo_colores_rgb)],
-        randint(0, 400),
+        randint(0, limite),
         uniform(0, 1)*2*pi
     )
-def creoAbeja():
 
+def creoAbeja():
     direccion_random_indice = randint(0, largo_angulos_posibles)
     direccion_random = angulos_direcciones[direccion_random_indice]
     color_random_indice = randint(0, largo_colores_rgb)
@@ -223,25 +199,44 @@ def creoAbeja():
 
     return Abeja(direccion_favorita, color_favorito, tolerancia_al_color, angulo_desviacion, distancia_maxima,r)
 
-CANT_GENERACIONES=200
-CANT_ABEJAS=20
-CANT_FLORES=50
-Q=1
-K=1
-MARGEN_EVOLUCION=2
-CX=400
-CY=400
+
 def XYfromPolar(oriX,oriY,r,a):
     """
     Desde el punto de origen (oriX,oriY), se calcula un punto a distancia R y a angulo A
     """
     return (int(oriX+sin(a)*r),  int(oriY+cos(a)*r))
+
 def randompos(r,fav,mistake):
     distanciaDesdeElCentro=random()*r
     angulo=(fav-mistake)+random()*(2*mistake)
-    return XYfromPolar(CX,CY,distanciaDesdeElCentro,angulo);
+    return XYfromPolar(CX,CY,distanciaDesdeElCentro,angulo)
+
 def distancia(p1,p2):
     return pow(pow(p1[0]-p2[0],2)+pow(p1[1]-p2[1],2),1/2)
+
+def frange(inicio, fin, step):
+    return [inicio + i*step for i in range(int((fin-inicio)/step))]
+
+def hayEvolucion(abejas):
+    """ @deprecated
+    Esta función determina si la generación actual de abejas
+    ha mejorado lo suficiente respecto de la generación anterior
+    Sacando la calificación promedio de las abejas de esta 
+    generación y comparandola con las calificaciones de la 
+    generación anterior
+    @param abejas: La lista de abejas a las que se le consultará
+    la diferencia con los papás para determinar la mejoría
+    entre generaciones.
+    @return: Un booleano que indica si la población completa 
+    continúa evolucionando. 
+    """
+    suma = 0
+    for abeja in abejas:
+        suma += pow(pow(calificacion(abeja.padre)-calificacion(abeja), 2) +
+                    pow(calificacion(abeja.madre)-calificacion(abeja), 2), 0.5)
+    return suma/CANT_ABEJAS > MARGEN_EVOLUCION
+
+
 def jardin():
     """
     Esta función simula el comportamiento el jardín atravez de las
@@ -298,7 +293,7 @@ def jardin():
         crearFlor()
         for _ in range(CANT_FLORES)
     ]
-    imprimirFlor(flores)
+    imprimirFlores(flores)
     for g in range(CANT_GENERACIONES):
         pintarFlores(flores)
         sumCalifGener=0
@@ -327,103 +322,88 @@ def jardin():
             for flor in flores
         ]
         
-        lista = []
-
-        if len(totalGener) < 5:
-            for i in range(len(totalGener)-1):
-                lista.append(totalGener[i])
-            devEstandarAnterior = statistics.stdev(lista)
-        else:
-            for i in range(len(totalGener)-6, len(totalGener)-1):
-                lista.append(totalGener[i])
-            devEstandarAnterior = statistics.stdev(lista)
-
-        lista = []
-
-        if len(totalGener) < 5:
-            for i in range(len(totalGener)):
-                lista.append(totalGener[i])
-            devEstandar = statistics.stdev(lista)
-        else:
-            for i in range(len(totalGener)-5, len(totalGener)):
-                lista.append(totalGener[i])
-            devEstandar = statistics.stdev(lista)
-
-        if abs(devEstandarAnterior-devEstandar) < 2:
-            print("devEstandarAnterior %s" % devEstandarAnterior)
-            print("devEstandar %s" % devEstandar)
+        if probabilidadAdaptabilidad(totalGener) == True:
             break
-
 
         despintarViejasFlores(flores)
         flores=nuevasFlores
-def imprimirFlor(flor):
+
+def probabilidadAdaptabilidad(totalGener):
+    lista = []
+
+    if len(totalGener) < 5:
+        for i in range(len(totalGener)-1):
+            lista.append(totalGener[i])
+        devEstandarAnterior = statistics.stdev(lista)
+    else:
+        for i in range(len(totalGener)-6, len(totalGener)-1):
+            lista.append(totalGener[i])
+        devEstandarAnterior = statistics.stdev(lista)
+
+    lista = []
+
+    if len(totalGener) < 5:
+        for i in range(len(totalGener)):
+            lista.append(totalGener[i])
+        devEstandar = statistics.stdev(lista)
+    else:
+        for i in range(len(totalGener)-5, len(totalGener)):
+            lista.append(totalGener[i])
+        devEstandar = statistics.stdev(lista)
+
+    if abs(devEstandarAnterior-devEstandar) < 2:
+        print("devEstandarAnterior %s" % devEstandarAnterior)
+        print("devEstandar %s" % devEstandar)
+        return True
+    else:
+        return False
+
+def pintarFlores(flores):
+    global px
+    for flor in flores:
+        x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
+        if x<800 and x>=0 and y<800 and y>=0:
+            px[x][y]=flor.color
+
+def despintarViejasFlores(flores):
+    screen.fill((0, 0, 0))
+
+def imprimirFlores(flor):
     for i in range(len(flor)):
-        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
+        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
+            flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
+
+"""
+Setup
+"""
+anchoStr = input("Cuanto de Ancho y largo gusta su interfaz??? Porfavor digite un numero par >>> ")
+"""
+if int(anchoStr) % 2 != 0:
+    print("El número digitado debe ser par. Intentelo de nuevo.")
+    anchoStr = input("Cuanto de Ancho y largo gusta su interfaz??? Porfavor digitelo >>> ")
+"""
+ancho = int(anchoStr)
+alto = ancho
+mitadAncho = int(ancho/2)
+
+CX = mitadAncho
+CY = mitadAncho
+
+CANT_GENERACIONES = 200
+CANT_ABEJAS = 20
+CANT_FLORES = 50
+Q = 1
+K = 1
+MARGEN_EVOLUCION = 2
 
 #oeste,este,norte,sur
 angulos_direcciones = [0, pi*3/4, pi/2, pi/4, pi, -pi/4, -pi/2, -pi*3/4]
 largo_angulos_posibles = len(angulos_direcciones)-1
 
-#                  rojo,    naranja         amarillo       verde        celeste        azul         morado        fuchsia
-colores_rgb = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 255, 255), (0, 0, 255), (127, 0, 255), (255, 0, 255)]
+#                  rojo,    naranja         amarillo       verde        celeste        blanco         morado        fuchsia
+colores_rgb = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 255, 255), (255, 255, 255), (127, 0, 255), (255, 0, 255)]
 largo_colores_rgb = len(colores_rgb)-1
 
-#Inicializo abejas Padres
-"""
-abeja1 = creoAbeja()
-abeja2 = creoAbeja()
-abeja_hijo = Cruce.cruzarAbejas(abeja1, abeja2)
-
-for j in range(len(abeja_hijo)):
-    if j == 0:
-        print("Variables hijo1: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
-    else:
-        print("Variables hijo2: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
-"""
-
-
-""" cromosomas de las abejas:
-direccion favorita (norte, noreste, etc)
-color favorito (rojo, anaranjado, etc)
-0 FF/16 rojo
-forma de recorrido (en anchura, aleatorio, en profundidad)
-                    0 - FF/3, FF/3 - 2*FF/3, 2*FF/3 - FF
-margen máximo de desviación
-
-cromosomas de las flores:
- color
- posicion
-"""
-
-def hayEvolucion(abejas):
-    """ @deprecated
-    Esta función determina si la generación actual de abejas
-    ha mejorado lo suficiente respecto de la generación anterior
-    Sacando la calificación promedio de las abejas de esta 
-    generación y comparandola con las calificaciones de la 
-    generación anterior
-    @param abejas: La lista de abejas a las que se le consultará
-    la diferencia con los papás para determinar la mejoría
-    entre generaciones.
-    @return: Un booleano que indica si la población completa 
-    continúa evolucionando. 
-    """
-    suma=0
-    for abeja in abejas:
-        suma+=pow(pow(calificacion(abeja.padre)-calificacion(abeja),2)+
-            pow(calificacion(abeja.madre)-calificacion(abeja),2),0.5)
-    return suma/CANT_ABEJAS>MARGEN_EVOLUCION
-
-
-"""
-Setup
-"""
-
-ancho = 800
-alto = 800
 pygame.init()
 screen = pygame.display.set_mode((ancho, alto))
 screen.fill((0, 0, 0))
@@ -432,16 +412,8 @@ pygame.display.set_caption("La colmena")
 clock = pygame.time.Clock()
 seed()
 
-def pintarFlores(flores):
-    global px
-    for flor in flores:
-        x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
-        if x<800 and x>=0 and y<800 and y>=0:
-            px[x][y]=flor.color
-def despintarViejasFlores(flores):
-    screen.fill((0, 0, 0))
 #Colmena
-px[400][400] = (255, 0, 0)
+px[mitadAncho][mitadAncho] = (255, 0, 0)
 
 t = threading.Thread(target=jardin)
 t.setDaemon(True)
