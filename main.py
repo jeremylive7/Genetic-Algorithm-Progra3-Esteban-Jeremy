@@ -298,6 +298,7 @@ def jardin():
         pintarFlores(flores)
         sumCalifGener=0
         totalGener=[]
+        #nuevas_abejas = []
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
             puntoAnterior=(CX,CY)
@@ -307,32 +308,55 @@ def jardin():
                 flor=getFlor(punto)
                 if flor!=None:#Simular Interaccion entre la abeja y la flor
                     flor.muestras+=abeja.polen
-                    abeja.polen+=[flor]
+                    abeja.polen.append(flor)
                     abeja.cantFlores+=1
                     distanciaRecorrida+=distancia(puntoAnterior,punto)#¡Duda!#
                 puntoAnterior=punto
             cacheCalif[abeja]=K*distanciaRecorrida/Q*abeja.cantFlores #Calificación bruta
             sumCalifGener+=cacheCalif[abeja]
             totalGener.append(sumCalifGener)
+            #nuevas_abejas.append(abeja)
+
         
+        #for abeja in nuevas_abejas:
         for abeja in abejas:
             if sumCalifGener != 0:
                 cacheNormalizedFitness[abeja]=calificacion(abeja)/sumCalifGener #Calificacion relativa
             else:
                 cacheNormalizedFitness[abeja]=1
 
-        abejas=reproducirAbejas(abejas)
+        #baseDeDatos.append(nuevas_abejas)
+        baseDeDatos.append(abejas)
+
+        #abejas = reproducirAbejas(nuevas_abejas)
+        abejas = reproducirAbejas(abejas)
+
         nuevasFlores=[
             flor.reproducir()
             for flor in flores
         ]
+        
         #imprimirAbejas(abejas)
-        #imprimirFlores(nuevasFlores)
+        #imprimirFlores(nuevasFlores)   
+
         if probabilidadAdaptabilidad(totalGener) == True:
             break
 
-        despintarViejasFlores(flores)
+        despintarViejasFlores()
         flores=nuevasFlores
+
+    despintarViejasFlores()
+    #Escoger que generacion y que abeja quiere mostrar su camino.
+    generacion_escogidaStr = input("Generacion: ")
+    abeja_escogidaStr = input("Abeja: ")
+    generacion_escogida = int(generacion_escogidaStr)
+    abeja_escogida = int(abeja_escogidaStr)
+    abejas = baseDeDatos[generacion_escogida]
+
+    imprimirAbeja(abejas[abeja_escogida])
+    imprimirFlores(abejas[abeja_escogida].polen)
+    #pintarFlores(abejas[abeja_escogida].polen)
+
 
 def probabilidadAdaptabilidad(totalGener):
     lista = []
@@ -359,7 +383,8 @@ def probabilidadAdaptabilidad(totalGener):
 
     promedio = abs(devEstandarAnterior-devEstandar)
 
-    if promedio < 2 and promedio > 1.5:
+#    if promedio < 1.5 and promedio > 0.1:
+    if promedio < 2:
         print("devEstandarAnterior %s" % devEstandarAnterior)
         print("devEstandar %s" % devEstandar)
         return True
@@ -376,7 +401,7 @@ def pintarFlores(flores):
         if x<800 and x>=0 and y<800 and y>=0:
             px[x][y]=flor.color
 
-def despintarViejasFlores(flores):
+def despintarViejasFlores():
     screen.fill((0, 0, 0))
 
 def imprimirFlores(flor):
@@ -389,16 +414,18 @@ def imprimirAbejas(abeja_hijo):
         print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
             abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
 
+def imprimirAbeja(abeja_hijo):
+    print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+        abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
+
+
 
 """
 Setup
 """
+baseDeDatos = []
+
 anchoStr = input("Cuanto de Ancho y largo gusta su interfaz??? Porfavor digite un numero par >>> ")
-"""
-if int(anchoStr) % 2 != 0:
-    print("El número digitado debe ser par. Intentelo de nuevo.")
-    anchoStr = input("Cuanto de Ancho y largo gusta su interfaz??? Porfavor digitelo >>> ")
-"""
 ancho = int(anchoStr)
 alto = ancho
 mitadAncho = int(ancho/2)
