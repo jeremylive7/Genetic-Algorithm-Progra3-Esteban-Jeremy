@@ -109,8 +109,8 @@ class Flor:
         codGeneticoAngulo = genoma[32:48]
         return Flor(
             (int(codGeneticoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
-            int(codGeneticoRadio)/0xff,
-            int(codGeneticoAngulo)/0xffff*2*pi
+            int(codGeneticoRadio, 2)/0xff*limite,
+            int(codGeneticoAngulo, 2)/0xffff*2*pi
         )
 
         
@@ -153,6 +153,12 @@ class Cruce():
         binario_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
         binario_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
 
+        print("Padre %s" % lista_padre)
+        print("Madre %s" % lista_madre)
+        print("Pivote %s" % pivote_random)
+        print("Hijo1 %s" % binario_hijo_1)
+        print("Hijo2 %s" % binario_hijo_2)
+
         a=[Cruce.transformarEnAbeja(binario_hijo_1),Cruce.transformarEnAbeja(binario_hijo_2)]
         for abeja in a:
             abeja.madre=abeja_madre
@@ -171,13 +177,12 @@ class Cruce():
             (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
             int(codGeneticoTolerancia,2)/0xff,
             int(codGeneticoAnguloDesviacion, 2)/0xffff*2*pi,
-            int(codGeneticoDistanciaMaxima, 2)/0xff*70.71,
+            int(codGeneticoDistanciaMaxima, 2)/0xff*limite,
             int(codGenRec,2)%3)
 
         return a
 
 def crearFlor():
-    limite =  int(sqrt(pow(mitadAncho, 2) + pow(mitadAncho, 2)))
     return Flor(
         colores_rgb[randint(0, largo_colores_rgb)],
         randint(0, limite),
@@ -293,7 +298,7 @@ def jardin():
         crearFlor()
         for _ in range(CANT_FLORES)
     ]
-    imprimirFlores(flores)
+    #imprimirFlores(flores)
     for g in range(CANT_GENERACIONES):
         print("Generacion #%s" % g)
         pintarFlores(flores)
@@ -327,8 +332,8 @@ def jardin():
             flor.reproducir()
             for flor in flores
         ]
-        imprimirAbeja(abejas)
-        imprimirFlores(nuevasFlores)
+        #imprimirAbejas(abejas)
+        #imprimirFlores(nuevasFlores)
         if probabilidadAdaptabilidad(totalGener) == True:
             break
 
@@ -358,7 +363,9 @@ def probabilidadAdaptabilidad(totalGener):
             lista.append(totalGener[i])
         devEstandar = statistics.stdev(lista)
 
-    if abs(devEstandarAnterior-devEstandar) < 2:
+    promedio = abs(devEstandarAnterior-devEstandar)
+
+    if promedio < 2 and promedio > 1.5:
         print("devEstandarAnterior %s" % devEstandarAnterior)
         print("devEstandar %s" % devEstandar)
         return True
@@ -383,15 +390,10 @@ def imprimirFlores(flor):
         print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
             flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
 
-def imprimirAbeja(abeja_hijo):
-
+def imprimirAbejas(abeja_hijo):
     for j in range(len(abeja_hijo)):
-        if j == 0:
-            print("Variables hijo1: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-                abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
-        else:
-            print("Variables hijo2: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-                abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
+        print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
 
 
 """
@@ -406,6 +408,7 @@ if int(anchoStr) % 2 != 0:
 ancho = int(anchoStr)
 alto = ancho
 mitadAncho = int(ancho/2)
+limite =  round(sqrt(pow(mitadAncho, 2) + pow(mitadAncho, 2)))
 
 CX = mitadAncho
 CY = mitadAncho
