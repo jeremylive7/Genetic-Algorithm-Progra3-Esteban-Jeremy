@@ -1,9 +1,8 @@
 import pygame
 from pygame.locals import *
-import sys
 import threading
-import math 
-from math import pi,sin,cos
+import statistics
+from math import pi,sin,cos,sqrt, pow
 from random import random, choices,randint,uniform,seed,choice
 
 """
@@ -159,6 +158,7 @@ class Flor:
         )
 
 def crearFlor():
+    limite =  int(sqrt(pow(CX, 2) + pow(CY, 2)))
     return Flor(
         choice(COLORES_FAVORITOS),
         randint(0, 71),
@@ -184,14 +184,18 @@ def XYfromPolar(oriX,oriY,r,a):
 def randompos(r,fav,mistake):
     distanciaDesdeElCentro=random()*r
     angulo=(fav-mistake)+random()*(2*mistake)
-    return XYfromPolar(CX,CY,distanciaDesdeElCentro,angulo);
+    return XYfromPolar(CX,CY,distanciaDesdeElCentro,angulo)
+
 def distancia(p1,p2):
     return pow(pow(p1[0]-p2[0],2)+pow(p1[1]-p2[1],2),1/2)
 def mismoColor(c1,c2):
     return pow(pow(c1[0]-c2[0],2)+pow(c1[1]-c2[1],2)+pow(c1[2]-c2[2],2),1/2)<C
 def strLista(lista):
     if len(lista)>7:return f"[ len = {len(lista)} ]"
-    return str([str(element)for element in lista])
+    r=""
+    for element in lista:
+        r+="\t"+str(element)+"\n"
+    return r
 def imprimirFlor(flor):
     for i in range(len(flor)):
         print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
@@ -201,10 +205,10 @@ def jardin():
     generaciones de abejas y el respectivo comportamiento de las
     flores.
     """    
-    def getFlor(punto):
-        nonlocal flores
+    def getFlor(punto,flores):
         for flor in flores:
             if distancia(XYfromPolar(CX,CY,flor.radio,flor.angulo),punto)<R:
+                flores.remove(flor)
                 return flor
         return None
     def calificacionBruta(abeja):
@@ -237,12 +241,13 @@ def jardin():
             cacheNormalizedFitness[abeja] 
             for abeja in abejas
         ]
-        for _ in range(CANT_ABEJAS/2):
+        for _ in range(CANT_ABEJAS//2):
             abejaPadre,abejaMadre=choices(
                 abejas,
                 weights=pesos,
                 k=2)
             nuevasAbejas+=abejaPadre.cruzarAbejas(abejaMadre)
+        assert len(nuevasAbejas)==CANT_ABEJAS
         return nuevasAbejas
 
     cacheNormalizedFitness={}
@@ -255,24 +260,25 @@ def jardin():
         crearFlor()
         for _ in range(CANT_FLORES)
     ]
-    #imprimirFlor(flores)
     for g in range(CANT_GENERACIONES):
         print("Generación #"+str(g))
         pintarFlores(flores)
         sumCalifGener=0
+        totalGener=[]
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
+            tmpFlores=list(flores)
             puntoAnterior=(CX,CY)
             for punto in recorrido:
-                flor=getFlor(punto)
+                flor=getFlor(punto,tmpFlores)
                 if flor!=None and (mismoColor(flor.color,abeja.color_favorito) or abeja.toleraColorFeo()):
                     print("La abeja "+str(abeja)+" se ha encontrado con la flor "+str(flor))
                     flor.muestras+=abeja.polen
                     abeja.polen+=[flor]
                     abeja.cantFlores+=1
                     
-                    print(f"Nuevo polen de la abeja: {strLista(abeja.polen)}")
-                    print(f"Nuevas muestras de la flor: {strLista([str(muestra)for muestra in flor.muestras])}")
+                    print(f"Nuevo polen de la abeja: \n{strLista(abeja.polen)}")
+                    print(f"Nuevas muestras de la flor: \n{strLista([str(muestra)for muestra in flor.muestras])}")
                     print(f"Cantidad flores visitadas por esta abeja: {str(abeja.cantFlores)}")
                 abeja.distanciaRecorrida+=distancia(puntoAnterior,punto)
                 puntoAnterior=punto
@@ -324,8 +330,9 @@ def pintarFlores(flores):
             px[x][y]=flor.color
 def despintarViejasFlores():
     screen.fill((0, 0, 0))
+    px[CX][CY] = (255, 0, 0)
 #Colmena
-px[50][50] = (255, 0, 0)
+px[CX][CY] = (255, 0, 0)
 
 t = threading.Thread(target=jardin)
 t.setDaemon(True)
