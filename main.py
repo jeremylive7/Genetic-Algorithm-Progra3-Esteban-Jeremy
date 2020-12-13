@@ -2,19 +2,10 @@ import pygame
 from pygame.locals import *
 import sys
 import threading
-
 import math 
 from math import pi,sin,cos
 from random import random, choices,randint,uniform,seed,choice
-from abc import abstractmethod
 
-#oeste,este,norte,sur
-angulos_direcciones = [0, pi*3/4, pi/2, pi/4, pi, -pi/4, -pi/2, -pi*3/4]
-largo_angulos_posibles = len(angulos_direcciones)-1
-inicial_random_indice = randint(0, largo_angulos_posibles)
-inicial_random = angulos_direcciones[inicial_random_indice]
-def frange(inicio,fin,step):
-    return [inicio + i*step for i in range(int((fin-inicio)/step))]
 """
 Genetic Logic
 """
@@ -28,8 +19,13 @@ class Abeja:
         self.recorrido=r
         self.polen=[]
         self.cantFlores=0
+        self.distanciaRecorrida=0
         self.madre=None
         self.padre=None
+    def __str__(self):
+        return "Abeja( DirecFav="+self.getDireccionFavoritaStr()+", MaxDesv="+str(self.angulo_desviacion)+", MaxDist="+str(self.distancia_maxima)+", ColorFav="+strColor(self.color_favorito)+" )"
+    def getDireccionFavoritaStr(self):
+        return str(self.direccion_favorita)
     def cmpRecorrido(self,objetivo):
         return self.recorrido%3==objetivo
     def esAnchura(self):
@@ -44,6 +40,8 @@ class Abeja:
         return self.direccion_favorita-self.angulo_desviacion
     def der(self):
         return self.direccion_favorita+self.angulo_desviacion
+    def toleraColorFeo(self):
+        return random() < self.tolerancia_al_color
     def calcularRecorrido(self):
         """
         Crea una lista de puntos sobre los que hipotéticamente pasará
@@ -62,35 +60,73 @@ class Abeja:
                 for a in frange(self.izq(),self.der(),0.01):
                     puntos.add(XYfromPolar(CX,CY,r,a))
         return puntos
+    def getCodigoGenetico(self):
+        PARAM_SIZE_1 = 16
+        PARAM_SIZE_2 = 8
+        listaGenesBits = ''
 
-    def cruce(self,otraAbeja):
-        return 0
-"""
-Garden Logic
-"""
+        direccion_favorita = self.direccion_favorita
+        color_favorito = self.color_favorito
+        tolerancia_al_color = self.tolerancia_al_color
+        angulo_desviacion = self.angulo_desviacion
+        distancia_maxima = self.distancia_maxima
+
+        codGeneticoDirFav = int(0xffff*direccion_favorita/(2*pi))
+        codGeneticoTolerancia = int(0xff*tolerancia_al_color)
+        codGeneticoAnguloDesviacion = int(0xffff*angulo_desviacion/(2*pi))
+        codGeneticoDistanciaMaxima = int(0xff*distancia_maxima/70.71)
+        codGenRec=int(0xff*self.recorrido/3)
+
+        listaGenesBits += bin(codGeneticoDirFav).replace("-","")[2:].zfill(PARAM_SIZE_1)
+        listaGenesBits += bin(codGeneticoTolerancia)[2:].zfill(PARAM_SIZE_2)
+        listaGenesBits += f'{bin(color_favorito[0])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[1])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[2])[2:].zfill(PARAM_SIZE_2)}'
+        listaGenesBits += bin(codGeneticoAnguloDesviacion)[2:].zfill(PARAM_SIZE_1)
+        listaGenesBits += bin(codGeneticoDistanciaMaxima)[2:].zfill(PARAM_SIZE_2)
+        listaGenesBits += bin(codGenRec)[2:].zfill(PARAM_SIZE_2)
+        return listaGenesBits
+    def cruzarAbejas(self, abeja_madre):
+        lista_padre = self.getCodigoGenetico()
+        lista_madre = abeja_madre.getCodigoGenetico()
+        pivote_random = randint(0, len(lista_padre)-1)
+        genoma_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
+        genoma_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
+
+        a=[Abeja.transformarEnAbeja(genoma_hijo_1),Abeja.transformarEnAbeja(genoma_hijo_2)]
+        for abeja in a:
+            abeja.madre=abeja_madre
+            abeja.padre=self
+        print('Padre: '+lista_padre,'Madre: '+lista_madre,f'Pivote: {pivote_random}',
+            'Hijo1: '+genoma_hijo_1[:pivote_random]+' '+genoma_hijo_1[pivote_random:],
+            'Hijo2: '+genoma_hijo_2[:pivote_random]+' '+genoma_hijo_2[pivote_random:],sep='\n' )
+        return a
+
+    def transformarEnAbeja(genoma):
+        codGeneticoColorFav=genoma[24:48]
+        a=Abeja(
+            int(genoma[:16],2)/0xffff*2*pi,
+            (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
+            int(genoma[16:24],2)/0xff,
+            int(genoma[48:64], 2)/0xffff*2*pi,
+            int(genoma[64:72], 2)/0xff*70.71,
+            int(genoma[72:],2)*3/0xff)
+        return a
 class Flor:
     def __init__(self,pColor, pRadio, pAngulo):
         self.color = pColor
         self.radio = pRadio
         self.angulo = pAngulo
         self.muestras = []#pMuestras
-    
-    def getMuestra(self):
-        return self.muestras
-
-    def creoListaDeBitsFlor(self):
+    def __str__(self):
+        return "Flor( Color="+strColor(self.color)+", Posicion="+XYfromPolar(CX,CY,self.radio,self.angulo)[2]+" )"
+    def getCodigoGenetico(self):
         PARAM_SIZE_1 = 16
         PARAM_SIZE_2 = 8
         listaGenesBits = ''
 
-        color = self.color
-        radio = self.radio
-        angulo = self.angulo
+        codGeneticoRadio = int(0xff*self.radio)
+        codGeneticoAngulo = int(0xffff*self.angulo/(2*pi))
 
-        codGeneticoRadio = int(0xff*radio)
-        codGeneticoAngulo = int(0xffff*angulo/(2*pi))
-
-        listaGenesBits += f'{bin(color[0]).replace("-", "")[2:].zfill(PARAM_SIZE_2)}{bin(color[1])[2:].zfill(PARAM_SIZE_2)}{bin(color[2])[2:].zfill(PARAM_SIZE_2)}'
+        listaGenesBits += f'{bin(self.color[0]).replace("-", "")[2:].zfill(PARAM_SIZE_2)}{bin(self.color[1])[2:].zfill(PARAM_SIZE_2)}{bin(self.color[2])[2:].zfill(PARAM_SIZE_2)}'
         listaGenesBits += bin(codGeneticoRadio)[2:].zfill(PARAM_SIZE_2)
         listaGenesBits += bin(codGeneticoAngulo)[2:].zfill(PARAM_SIZE_1)
 
@@ -102,149 +138,76 @@ class Flor:
         madre=choice(self.muestras)
         return Flor.transformarEnFlor(Flor.cruzarFlores(self,madre))
 
-    def cruzarFlores(flor_padre, flor_madre):
-        lista_padre = Flor.creoListaDeBitsFlor(flor_padre)
-        lista_madre = Flor.creoListaDeBitsFlor(flor_madre)
+    def cruzarFlores(self, flor_madre):
+        lista_padre = self.getCodigoGenetico()
+        lista_madre = Flor.getCodigoGenetico(flor_madre)
 
         pivote_random = randint(0, len(lista_padre)-1)
 
         binario_hijo_1 = lista_padre[:pivote_random] + \
             lista_madre[pivote_random:]
         return binario_hijo_1
-        binario_hijo_2 = lista_madre[:pivote_random] + \
-            lista_padre[pivote_random:]
-        
-        print("hijo1: %s" % binario_hijo_1)
-        print("hijo2: %s" % binario_hijo_2)
-
-        result = []
-
-        result.append(Flor.transformarEnFlor(binario_hijo_1))
-        result.append(Flor.transformarEnFlor(binario_hijo_2))
-
-        return result
 
     def transformarEnFlor(genoma):
         codGeneticoColor = genoma[:24]
         codGeneticoRadio = genoma[24:32]
         codGeneticoAngulo = genoma[32:48]
         return Flor(
-            (int(codGenetipcoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
+            (int(codGeneticoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
             int(codGeneticoRadio)/0xff,
             int(codGeneticoAngulo)/0xffff*2*pi
         )
 
-        
-class Cruce():
-
-    def creoListaDeBits(abeja):
-        PARAM_SIZE_1 = 16
-        PARAM_SIZE_2 = 8
-        listaGenesBits = ''
-
-        direccion_favorita = abeja.direccion_favorita
-        color_favorito = abeja.color_favorito
-        tolerancia_al_color = abeja.tolerancia_al_color
-        angulo_desviacion = abeja.angulo_desviacion
-        distancia_maxima = abeja.distancia_maxima
-
-        # ! Debe estar entre 0 y 2*pi
-        codGeneticoDirFav = int(0xffff*direccion_favorita/(2*pi))
-        codGeneticoTolerancia = int(0xff*tolerancia_al_color)
-        codGeneticoAnguloDesviacion = int(0xffff*angulo_desviacion/(2*pi))
-        codGeneticoDistanciaMaxima = int(0xff*distancia_maxima/70.71)
-        codGenRec=int(0xff*abeja.recorrido/3)
-        listaGenesBits += bin(codGeneticoDirFav).replace("-","")[2:].zfill(PARAM_SIZE_1)
-        listaGenesBits += bin(codGeneticoTolerancia)[2:].zfill(PARAM_SIZE_2)
-        listaGenesBits += f'{bin(color_favorito[0])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[1])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[2])[2:].zfill(PARAM_SIZE_2)}'
-        listaGenesBits += bin(codGeneticoAnguloDesviacion)[
-            2:].zfill(PARAM_SIZE_1)
-        listaGenesBits += bin(codGeneticoDistanciaMaxima)[
-            2:].zfill(PARAM_SIZE_2)
-        listaGenesBits += bin(codGenRec)[2:].zfill(PARAM_SIZE_2)
-
-        return listaGenesBits
-
-    def cruzarAbejas(abeja_padre, abeja_madre):
-        lista_padre = Cruce.creoListaDeBits(abeja_padre)
-        lista_madre = Cruce.creoListaDeBits(abeja_madre)
-
-        pivote_random = randint(0, len(lista_padre)-1)
-
-        binario_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
-        binario_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
-
-        a=[Cruce.transformarEnAbeja(binario_hijo_1),Cruce.transformarEnAbeja(binario_hijo_2)]
-        for abeja in a:
-            abeja.madre=abeja_madre
-            abeja.padre=abeja_padre
-
-        return a
-
-    def transformarEnAbeja(genoma):
-        codGeneticoDirFav=genoma[:16]
-        codGeneticoTolerancia=genoma[16:24]
-        codGeneticoColorFav=genoma[24:48]
-        codGeneticoAnguloDesviacion=genoma[48:64]
-        codGeneticoDistanciaMaxima=genoma[64:72]
-        codGenRec=genoma[72:]
-        a=Abeja(
-            int(codGeneticoDirFav,2)/0xffff*2*pi,
-            (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
-            int(codGeneticoTolerancia,2)/0xff,
-            int(codGeneticoAnguloDesviacion, 2)/0xffff*2*pi,
-            int(codGeneticoDistanciaMaxima, 2)/0xff*70.71,
-            int(codGenRec,2)%3)
-
-        return a
 def crearFlor():
     return Flor(
-        colores_rgb[randint(0, largo_colores_rgb)],
+        choice(COLORES_FAVORITOS),
         randint(0, 71),
         uniform(0, 1)*2*pi
     )
 def creoAbeja():
-
-    direccion_random_indice = randint(0, largo_angulos_posibles)
-    direccion_random = angulos_direcciones[direccion_random_indice]
-    color_random_indice = randint(0, largo_colores_rgb)
-    color_random = colores_rgb[color_random_indice]
-
-    direccion_favorita = direccion_random
-    color_favorito = color_random
-    tolerancia_al_color = uniform(0, 1)
-    angulo_desviacion = random()*pi/6
-    distancia_maxima = randint(0, 71)
-    r=randint(0,3)
-
-    return Abeja(direccion_favorita, color_favorito, tolerancia_al_color, angulo_desviacion, distancia_maxima,r)
-
-CANT_GENERACIONES=200
-CANT_ABEJAS=20
-CANT_FLORES=50
-Q=1
-K=1
-MARGEN_EVOLUCION=2
-CX=50
-CY=50
+    return Abeja(
+        choice(DIRECCIONES_FAVORITAS), 
+        choice(COLORES_FAVORITOS), 
+        uniform(0, 1), 
+        random()*pi/6, 
+        randint(0, 71),
+        randint(0,2))
+def frange(inicio,fin,step):
+    return [inicio + i*step for i in range(int((fin-inicio)/step))]
 def XYfromPolar(oriX,oriY,r,a):
     """
     Desde el punto de origen (oriX,oriY), se calcula un punto a distancia R y a angulo A
     """
-    return (int(oriX+sin(a)*r),  int(oriY+cos(a)*r))
+    x=int(oriX+sin(a)*r)
+    y=int(oriY+cos(a)*r)
+    return (x, y, f'( {x}, {y} )')
 def randompos(r,fav,mistake):
     distanciaDesdeElCentro=random()*r
     angulo=(fav-mistake)+random()*(2*mistake)
     return XYfromPolar(CX,CY,distanciaDesdeElCentro,angulo);
 def distancia(p1,p2):
     return pow(pow(p1[0]-p2[0],2)+pow(p1[1]-p2[1],2),1/2)
+def mismoColor(c1,c2):
+    return pow(pow(c1[0]-c2[0],2)+pow(c1[1]-c2[1],2)+pow(c1[2]-c2[2],2),1/2)<C
+def strLista(lista):
+    if len(lista)>7:return f"[ len = {len(lista)} ]"
+    return str([str(element)for element in lista])
+def imprimirFlor(flor):
+    for i in range(len(flor)):
+        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
 def jardin():
     """
     Esta función simula el comportamiento el jardín atravez de las
     generaciones de abejas y el respectivo comportamiento de las
     flores.
-    """
-    def calificacion(abeja):
+    """    
+    def getFlor(punto):
+        nonlocal flores
+        for flor in flores:
+            if distancia(XYfromPolar(CX,CY,flor.radio,flor.angulo),punto)<R:
+                return flor
+        return None
+    def calificacionBruta(abeja):
         """
         Esta función busca calificar cada abeja pero recordando si ya
         se calificó una abeja con estos resultados de recorrido
@@ -253,7 +216,14 @@ def jardin():
         @return: la calificación de esta abeja
         """
         nonlocal cacheCalif
+        if abeja not in cacheCalif.keys():
+            if abeja.cantFlores==0 or abeja.distanciaRecorrida==0:cacheCalif[abeja]=0
+            else:
+                cacheCalif[abeja]=(Q*abeja.cantFlores)/(K*abeja.distanciaRecorrida) 
         return cacheCalif[abeja]
+    def calcularCalificacionRelativa(abejas,sumCalifGener):
+        for abeja in abejas:
+            cacheNormalizedFitness[abeja]=calificacionBruta(abeja)/sumCalifGener
     def reproducirAbejas(abejas):
         """
         Esta función reproducirá las abejas según su calificación
@@ -267,24 +237,16 @@ def jardin():
             cacheNormalizedFitness[abeja] 
             for abeja in abejas
         ]
-        for _ in range(CANT_ABEJAS):
+        for _ in range(CANT_ABEJAS/2):
             abejaPadre,abejaMadre=choices(
                 abejas,
                 weights=pesos,
                 k=2)
-            nuevasAbejas+=Cruce.cruzarAbejas(abejaPadre,abejaMadre)
+            nuevasAbejas+=abejaPadre.cruzarAbejas(abejaMadre)
         return nuevasAbejas
 
     cacheNormalizedFitness={}
     cacheCalif={}
-    #Aquí comienza lo bueno#
-    def getFlor(punto):
-        nonlocal flores
-        for flor in flores:
-            x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
-            if int(x)==punto[0] and int(y)==punto[1]:
-                return flor
-        return None
     abejas=[
         creoAbeja()
         for _ in range(CANT_ABEJAS)
@@ -293,98 +255,55 @@ def jardin():
         crearFlor()
         for _ in range(CANT_FLORES)
     ]
-    imprimirFlor(flores)
+    #imprimirFlor(flores)
     for g in range(CANT_GENERACIONES):
+        print("Generación #"+str(g))
         pintarFlores(flores)
         sumCalifGener=0
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
             puntoAnterior=(CX,CY)
-            distanciaRecorrida=0
             for punto in recorrido:
-                #pintarRecorrido(abeja,punto)
                 flor=getFlor(punto)
-                if flor!=None:#Simular Interaccion entre la abeja y la flor
+                if flor!=None and (mismoColor(flor.color,abeja.color_favorito) or abeja.toleraColorFeo()):
+                    print("La abeja "+str(abeja)+" se ha encontrado con la flor "+str(flor))
                     flor.muestras+=abeja.polen
                     abeja.polen+=[flor]
                     abeja.cantFlores+=1
-                    distanciaRecorrida+=distancia(puntoAnterior,punto)#¡Duda!#
+                    
+                    print(f"Nuevo polen de la abeja: {strLista(abeja.polen)}")
+                    print(f"Nuevas muestras de la flor: {strLista([str(muestra)for muestra in flor.muestras])}")
+                    print(f"Cantidad flores visitadas por esta abeja: {str(abeja.cantFlores)}")
+                abeja.distanciaRecorrida+=distancia(puntoAnterior,punto)
                 puntoAnterior=punto
-            cacheCalif[abeja]=K*distanciaRecorrida/Q*abeja.cantFlores #Calificación bruta
-            sumCalifGener+=cacheCalif[abeja]
-        for abeja in abejas:
-            cacheNormalizedFitness[abeja]=calificacion(abeja)/sumCalifGener #Calificacion relativa
+            sumCalifGener+=calificacionBruta(abeja)
+        calcularCalificacionRelativa(abejas,sumCalifGener)
         abejas=reproducirAbejas(abejas)
         nuevasFlores=[
             flor.reproducir()
             for flor in flores
         ]
-        despintarViejasFlores(flores)
         flores=nuevasFlores
-def imprimirFlor(flor):
-    for i in range(len(flor)):
-        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
-
-#oeste,este,norte,sur
-angulos_direcciones = [0, pi*3/4, pi/2, pi/4, pi, -pi/4, -pi/2, -pi*3/4]
-largo_angulos_posibles = len(angulos_direcciones)-1
-
-#                  rojo,    naranja         amarillo       verde        celeste        azul         morado        fuchsia
-colores_rgb = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 255, 255), (0, 0, 255), (127, 0, 255), (255, 0, 255)]
-largo_colores_rgb = len(colores_rgb)-1
-
-#Inicializo abejas Padres
-abeja1 = creoAbeja()
-abeja2 = creoAbeja()
-abeja_hijo = Cruce.cruzarAbejas(abeja1, abeja2)
-
-for j in range(len(abeja_hijo)):
-    if j == 0:
-        print("Variables hijo1: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
-    else:
-        print("Variables hijo2: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
-
-
-
-""" cromosomas de las abejas:
-direccion favorita (norte, noreste, etc)
-color favorito (rojo, anaranjado, etc)
-0 FF/16 rojo
-forma de recorrido (en anchura, aleatorio, en profundidad)
-                    0 - FF/3, FF/3 - 2*FF/3, 2*FF/3 - FF
-margen máximo de desviación
-
-cromosomas de las flores:
- color
- posicion
-"""
-
-def hayEvolucion(abejas):
-    """ @deprecated
-    Esta función determina si la generación actual de abejas
-    ha mejorado lo suficiente respecto de la generación anterior
-    Sacando la calificación promedio de las abejas de esta 
-    generación y comparandola con las calificaciones de la 
-    generación anterior
-    @param abejas: La lista de abejas a las que se le consultará
-    la diferencia con los papás para determinar la mejoría
-    entre generaciones.
-    @return: Un booleano que indica si la población completa 
-    continúa evolucionando. 
-    """
-    suma=0
-    for abeja in abejas:
-        suma+=pow(pow(calificacion(abeja.padre)-calificacion(abeja),2)+
-            pow(calificacion(abeja.madre)-calificacion(abeja),2),0.5)
-    return suma/CANT_ABEJAS>MARGEN_EVOLUCION
-
-
+        despintarViejasFlores()
+        
 """
 Setup
 """
-
+#GENETIC ALGORITHM PARAMETERS
+#                  rojo,    naranja         amarillo       verde        celeste        azul         morado        fuchsia
+COLORES_FAVORITOS = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 255, 255), (0, 0, 255), (127, 0, 255), (255, 0, 255)]
+DIRECCIONES_FAVORITAS = [i/4*pi for i in range(8)]
+CANT_GENERACIONES=200
+CANT_ABEJAS=20
+CANT_FLORES=50
+Q=1
+K=1
+R=5 #Distancia a la que se acepta que la abeja llegó a la flor
+C=10 #Distancia a la que un color es igual a otro
+PROB_MUTACION=0.0015
+CX=50
+CY=50
+#PYGAME PARAMETERS
 ancho = 100
 alto = 100
 pygame.init()
@@ -394,14 +313,16 @@ px = pygame.PixelArray(screen)
 pygame.display.set_caption("La colmena")
 clock = pygame.time.Clock()
 seed()
-
+def strColor(color):
+    return f"({str(color[0]).zfill(3)},{str(color[1]).zfill(3)},{str(color[2]).zfill(3)})"
 def pintarFlores(flores):
     global px
     for flor in flores:
-        x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
+        x,y,name=XYfromPolar(CX,CY,flor.radio,flor.angulo)
+        print("Pintando flor de color "+strColor(flor.color)+" en el punto: "+name)
         if x<100 and x>=0 and y<100 and y>=0:
             px[x][y]=flor.color
-def despintarViejasFlores(flores):
+def despintarViejasFlores():
     screen.fill((0, 0, 0))
 #Colmena
 px[50][50] = (255, 0, 0)
