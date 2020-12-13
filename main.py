@@ -398,7 +398,7 @@ def pintarFlores(flores):
         x=abs(x)
         y=abs(y)
         print("Flor de color %s y posicion (%s,%s)" % (flor.color,x,y))
-        if x<800 and x>=0 and y<800 and y>=0:
+        if x<ancho and x>=0 and y<ancho and y>=0:
             px[x][y]=flor.color
 
 def despintarViejasFlores():
