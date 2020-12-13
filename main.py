@@ -70,8 +70,6 @@ class Flor:
         return self.muestras
 
     def creoListaDeBitsFlor(self):
-        PARAM_SIZE_1 = 16
-        PARAM_SIZE_2 = 8
         listaGenesBits = ''
 
         color = self.color
@@ -91,7 +89,7 @@ class Flor:
         if len(self.muestras)==0:
             return crearFlor()
         madre=choice(self.muestras)
-        return Flor.transformarEnFlor(Flor.cruzarFlores(self,madre))
+        return Flor.transformarEnFlor(self, Flor.cruzarFlores(self,madre))
 
     def cruzarFlores(flor_padre, flor_madre):
         lista_padre = Flor.creoListaDeBitsFlor(flor_padre)
@@ -103,22 +101,20 @@ class Flor:
             lista_madre[pivote_random:]
         return binario_hijo_1
 
-    def transformarEnFlor(genoma):
+    def transformarEnFlor(self,genoma):
         codGeneticoColor = genoma[:24]
         codGeneticoRadio = genoma[24:32]
         codGeneticoAngulo = genoma[32:48]
         return Flor(
             (int(codGeneticoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
-            int(codGeneticoRadio, 2)/0xff*limite,
-            int(codGeneticoAngulo, 2)/0xffff*2*pi
+            int(codGeneticoRadio, 2)/0xff*self.radio,
+            int(codGeneticoAngulo, 2)/0xffff*self.angulo/(2*pi)
         )
 
         
 class Cruce():
 
     def creoListaDeBits(abeja):
-        PARAM_SIZE_1 = 16
-        PARAM_SIZE_2 = 8
         listaGenesBits = ''
 
         direccion_favorita = abeja.direccion_favorita
@@ -131,15 +127,13 @@ class Cruce():
         codGeneticoDirFav = int(0xffff*direccion_favorita/(2*pi))
         codGeneticoTolerancia = int(0xff*tolerancia_al_color)
         codGeneticoAnguloDesviacion = int(0xffff*angulo_desviacion/(2*pi))
-        codGeneticoDistanciaMaxima = int(0xff*distancia_maxima/70.71)
+        codGeneticoDistanciaMaxima = int(0xff*distancia_maxima/limite)
         codGenRec=int(0xff*abeja.recorrido/3)
         listaGenesBits += bin(codGeneticoDirFav).replace("-","")[2:].zfill(PARAM_SIZE_1)
         listaGenesBits += bin(codGeneticoTolerancia)[2:].zfill(PARAM_SIZE_2)
         listaGenesBits += f'{bin(color_favorito[0])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[1])[2:].zfill(PARAM_SIZE_2)}{bin(color_favorito[2])[2:].zfill(PARAM_SIZE_2)}'
-        listaGenesBits += bin(codGeneticoAnguloDesviacion)[
-            2:].zfill(PARAM_SIZE_1)
-        listaGenesBits += bin(codGeneticoDistanciaMaxima)[
-            2:].zfill(PARAM_SIZE_2)
+        listaGenesBits += bin(codGeneticoAnguloDesviacion)[2:].zfill(PARAM_SIZE_1)
+        listaGenesBits += bin(codGeneticoDistanciaMaxima)[2:].zfill(PARAM_SIZE_2)
         listaGenesBits += bin(codGenRec)[2:].zfill(PARAM_SIZE_2)
 
         return listaGenesBits
@@ -409,6 +403,9 @@ ancho = int(anchoStr)
 alto = ancho
 mitadAncho = int(ancho/2)
 limite =  round(sqrt(pow(mitadAncho, 2) + pow(mitadAncho, 2)))
+
+PARAM_SIZE_1 = 16
+PARAM_SIZE_2 = 8
 
 CX = mitadAncho
 CY = mitadAncho
