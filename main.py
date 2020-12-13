@@ -295,6 +295,7 @@ def jardin():
     ]
     imprimirFlores(flores)
     for g in range(CANT_GENERACIONES):
+        print("Generacion #%s" % g)
         pintarFlores(flores)
         sumCalifGener=0
         totalGener=[]
@@ -314,8 +315,13 @@ def jardin():
             cacheCalif[abeja]=K*distanciaRecorrida/Q*abeja.cantFlores #Calificación bruta
             sumCalifGener+=cacheCalif[abeja]
             totalGener.append(sumCalifGener)
+        
         for abeja in abejas:
-            cacheNormalizedFitness[abeja]=calificacion(abeja)/sumCalifGener #Calificacion relativa
+            if sumCalifGener != 0:
+                cacheNormalizedFitness[abeja]=calificacion(abeja)/sumCalifGener #Calificacion relativa
+            else:
+                cacheNormalizedFitness[abeja]=1
+
         abejas=reproducirAbejas(abejas)
         nuevasFlores=[
             flor.reproducir()
@@ -337,7 +343,7 @@ def probabilidadAdaptabilidad(totalGener):
             lista.append(totalGener[i])
         devEstandarAnterior = statistics.stdev(lista)
     else:
-        for i in range(len(totalGener)-6, len(totalGener)-1):
+        for i in range(len(totalGener)-4, len(totalGener)-1):
             lista.append(totalGener[i])
         devEstandarAnterior = statistics.stdev(lista)
 
@@ -348,7 +354,7 @@ def probabilidadAdaptabilidad(totalGener):
             lista.append(totalGener[i])
         devEstandar = statistics.stdev(lista)
     else:
-        for i in range(len(totalGener)-5, len(totalGener)):
+        for i in range(len(totalGener)-4, len(totalGener)):
             lista.append(totalGener[i])
         devEstandar = statistics.stdev(lista)
 
@@ -363,6 +369,9 @@ def pintarFlores(flores):
     global px
     for flor in flores:
         x,y=XYfromPolar(CX,CY,flor.radio,flor.angulo)
+        x=abs(x)
+        y=abs(y)
+        print("Flor de color %s y posicion (%s,%s)" % (flor.color,x,y))
         if x<800 and x>=0 and y<800 and y>=0:
             px[x][y]=flor.color
 
