@@ -336,6 +336,7 @@ def probabilidadAdaptabilidad(totalGener):
         return True
     else:
         return False        
+
 """
 Setup
 """
@@ -383,11 +384,19 @@ def pintarFlores(flores):
     for flor in flores:
         x,y,name=XYfromPolar(CX,CY,flor.radio,flor.angulo)
         print("Pintando flor de color "+strColor(flor.color)+" en el punto: "+name)
-        if x<100 and x>=0 and y<100 and y>=0:
+        if x<ancho and x>=0 and y<ancho and y>=0:
             px[x][y]=flor.color
 def despintarViejasFlores():
     screen.fill((0, 0, 0))
     px[CX][CY] = (255, 0, 0)
+def imprimirAbejas(abeja_hijo):
+    for j in range(len(abeja_hijo)):
+        print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
+def imprimirAbeja(abeja_hijo):
+    print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+        abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
+
 #Colmena
 px[CX][CY] = (255, 0, 0)
 
