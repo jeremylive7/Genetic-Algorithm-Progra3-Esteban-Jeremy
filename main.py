@@ -60,8 +60,6 @@ class Abeja:
                     puntos.add(XYfromPolar(CX,CY,r,a))
         return puntos
     def getCodigoGenetico(self):
-        PARAM_SIZE_1 = 16
-        PARAM_SIZE_2 = 8
         listaGenesBits = ''
 
         direccion_favorita = self.direccion_favorita
@@ -117,9 +115,12 @@ class Flor:
         self.muestras = []#pMuestras
     def __str__(self):
         return "Flor( Color="+strColor(self.color)+", Posicion="+XYfromPolar(CX,CY,self.radio,self.angulo)[2]+" )"
+    def getMuestra(self):
+        return self.muestras
+
+    def creoListaDeBitsFlor(self):
+        return self.getCodigoGenetico()
     def getCodigoGenetico(self):
-        PARAM_SIZE_1 = 16
-        PARAM_SIZE_2 = 8
         listaGenesBits = ''
 
         codGeneticoRadio = int(0xff*self.radio)
@@ -135,7 +136,7 @@ class Flor:
         if len(self.muestras)==0:
             return crearFlor()
         madre=choice(self.muestras)
-        return Flor.transformarEnFlor(Flor.cruzarFlores(self,madre))
+        return Flor.transformarEnFlor(self, Flor.cruzarFlores(self,madre))
 
     def cruzarFlores(self, flor_madre):
         lista_padre = self.getCodigoGenetico()
@@ -147,14 +148,14 @@ class Flor:
             lista_madre[pivote_random:]
         return binario_hijo_1
 
-    def transformarEnFlor(genoma):
+    def transformarEnFlor(self,genoma):
         codGeneticoColor = genoma[:24]
         codGeneticoRadio = genoma[24:32]
         codGeneticoAngulo = genoma[32:48]
         return Flor(
             (int(codGeneticoColor[:8],2), int(codGeneticoColor[8:16],2), int(codGeneticoColor[16:],2)),
-            int(codGeneticoRadio)/0xff,
-            int(codGeneticoAngulo)/0xffff*2*pi
+            int(codGeneticoRadio, 2)/0xff*self.radio,
+            int(codGeneticoAngulo, 2)/0xffff*self.angulo/(2*pi)
         )
 
 def crearFlor():
@@ -265,6 +266,7 @@ def jardin():
         pintarFlores(flores)
         sumCalifGener=0
         totalGener=[]
+        #nuevas_abejas = []
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
             tmpFlores=list(flores)
@@ -274,7 +276,7 @@ def jardin():
                 if flor!=None and (mismoColor(flor.color,abeja.color_favorito) or abeja.toleraColorFeo()):
                     print("La abeja "+str(abeja)+" se ha encontrado con la flor "+str(flor))
                     flor.muestras+=abeja.polen
-                    abeja.polen+=[flor]
+                    abeja.polen.append(flor)
                     abeja.cantFlores+=1
                     
                     print(f"Nuevo polen de la abeja: \n{strLista(abeja.polen)}")
@@ -285,13 +287,55 @@ def jardin():
             sumCalifGener+=calificacionBruta(abeja)
         calcularCalificacionRelativa(abejas,sumCalifGener)
         abejas=reproducirAbejas(abejas)
+        totalGener.append(sumCalifGener)
         nuevasFlores=[
             flor.reproducir()
             for flor in flores
         ]
+        
+        if probabilidadAdaptabilidad(totalGener) == True:
+            break
         flores=nuevasFlores
         despintarViejasFlores()
-        
+
+def PDU(abejas):
+    generacion_escogidaStr = input("Generacion: ")
+    abeja_escogidaStr = input("Abeja: ")
+    generacion_escogida = int(generacion_escogidaStr)
+    abeja_escogida = int(abeja_escogidaStr)
+    abejas = baseDeDatos[generacion_escogida]
+def probabilidadAdaptabilidad(totalGener):
+    lista = []
+
+    if len(totalGener) < 5:
+        for i in range(len(totalGener)-1):
+            lista.append(totalGener[i])
+        devEstandarAnterior = statistics.stdev(lista)
+    else:
+        for i in range(len(totalGener)-4, len(totalGener)-1):
+            lista.append(totalGener[i])
+        devEstandarAnterior = statistics.stdev(lista)
+
+    lista = []
+
+    if len(totalGener) < 5:
+        for i in range(len(totalGener)):
+            lista.append(totalGener[i])
+        devEstandar = statistics.stdev(lista)
+    else:
+        for i in range(len(totalGener)-4, len(totalGener)):
+            lista.append(totalGener[i])
+        devEstandar = statistics.stdev(lista)
+
+    promedio = abs(devEstandarAnterior-devEstandar)
+
+#    if promedio < 1.5 and promedio > 0.1:
+    if promedio < 2:
+        print("devEstandarAnterior %s" % devEstandarAnterior)
+        print("devEstandar %s" % devEstandar)
+        return True
+    else:
+        return False        
 """
 Setup
 """
@@ -310,8 +354,21 @@ PROB_MUTACION=0.0015
 CX=50
 CY=50
 #PYGAME PARAMETERS
-ancho = 100
-alto = 100
+
+baseDeDatos = []
+
+anchoStr = input("Cuanto de Ancho y largo gusta su interfaz??? Porfavor digite un numero par >>> ")
+ancho = int(anchoStr)
+alto = ancho
+mitadAncho = int(ancho/2)
+limite =  round(sqrt(pow(mitadAncho, 2) + pow(mitadAncho, 2)))
+
+PARAM_SIZE_1 = 16
+PARAM_SIZE_2 = 8
+
+CX = mitadAncho
+CY = mitadAncho
+
 pygame.init()
 screen = pygame.display.set_mode((ancho, alto))
 screen.fill((0, 0, 0))
