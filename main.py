@@ -273,11 +273,11 @@ def imprimirAbejas(abeja_hijo):
 
 def imprimirFlores(flor):
     for i in range(len(flor)):
-        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Cantida de muestras: %s \n" % (
-            flor[i].color, flor[i].radio, flor[i].angulo, len(flor[i].muestras)))
+        print(" Flor #%s: \n Color: %s \n Radio: %s \n Angulo: %s \n Cantida de muestras: %s \n" % (
+            i,flor[i].color, flor[i].radio, flor[i].angulo, len(flor[i].muestras)))
 
 def imprimirAbeja(abeja_hijo):
-    print("Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s \n" % (
+    print(" Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s \n" % (
         abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
 
 def imprimirFlor(pFlor):
@@ -286,25 +286,25 @@ def imprimirFlor(pFlor):
         flor.color, flor.radio, flor.angulo, len(flor.muestras)))
 
 def escogenciaDeGeneracionYAbeja():
-    generacion_escogidaStr = input("Generacion: ")
+    generacion_escogidaStr = input("\nGeneracion: ")
     abeja_escogidaStr = input("Abeja: ")
     generacion_escogida = int(generacion_escogidaStr)
     abeja_escogida = int(abeja_escogidaStr)
     abejas = baseDeDatos[generacion_escogida]
     abeja = abejas[abeja_escogida]
 
-    print("Abeja hija:")
+    print("\nAbeja hija:")
+    print(" Tipo de recorrido: %s" % abeja.recorrido)
+    print(" Flores visitadas: %s" % abeja.cantFlores)
+    print(" Distancia de recorrido: %s" % abeja.distanciaRecorrida)
     imprimirAbeja(abeja)
-    
-    print("Tipo de recorrido: %s" % abeja.recorrido)
-    print("Flores visitadas: %s" % abeja.cantFlores)
-    print("Distancia de recorrido: %s" % abeja.distanciaRecorrida)
-    print("Lista de polen: %s")
+
+    print(" Lista de polen:")
     if(abeja.cantFlores > 1):
         imprimirFlores(abeja.polen)
         pintarFlores(abeja.polen)
     elif abeja.cantFlores == 0:
-        print("No visito ninguna flor.")
+        print(" No visito ninguna flor.")
     else:
         imprimirFlor(abeja.polen)
 
