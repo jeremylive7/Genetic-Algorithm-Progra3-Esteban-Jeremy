@@ -113,9 +113,9 @@ class Abeja:
         for abeja in lista_abejas_hijas:
             abeja.madre=abeja_madre
             abeja.padre=self
-        print('Padre: '+lista_padre,'Madre: '+lista_madre,f'Pivote: {pivote_random}',
-            'Hijo1: '+genoma_hijo_1[:pivote_random]+' '+genoma_hijo_1[pivote_random:],
-            'Hijo2: '+genoma_hijo_2[:pivote_random]+' '+genoma_hijo_2[pivote_random:],sep='\n' )
+        #print('Padre: '+lista_padre,'Madre: '+lista_madre,f'Pivote: {pivote_random}',
+        #    'Hijo1: '+genoma_hijo_1[:pivote_random]+' '+genoma_hijo_1[pivote_random:],
+        #    'Hijo2: '+genoma_hijo_2[:pivote_random]+' '+genoma_hijo_2[pivote_random:],sep='\n' )
         return lista_abejas_hijas
 
     def transformarEnAbeja(genoma):
@@ -229,8 +229,8 @@ def XYfromPolar(oriX,oriY,r,a):
     """
     Desde el punto de origen (oriX,oriY), se calcula un punto a distancia R y a angulo A
     """
-    x=int(oriX+sin(a)*r)
-    y=int(oriY+cos(a)*r)
+    x=abs(int(oriX+sin(a)*r))
+    y=abs(int(oriY+cos(a)*r))
     return (x, y, f'( {x}, {y} )')
 
 def randompos(r,fav,mistake):
@@ -250,6 +250,58 @@ def strLista(lista):
     for element in lista:
         r+="\t"+str(element)+"\n"
     return r
+
+def strColor(color):
+    return f"({str(color[0]).zfill(3)},{str(color[1]).zfill(3)},{str(color[2]).zfill(3)})"
+
+def pintarFlores(flores):
+    global px
+    for flor in flores:
+        x,y,name=XYfromPolar(CX,CY,flor.radio,flor.angulo)
+        #print("Pintando flor de color "+strColor(flor.color)+" en el punto: "+name)
+        if x<ANCHO and x>=0 and y<ANCHO and y>=0:
+            px[x][y]=flor.color
+
+def despintarViejasFlores():
+    screen.fill((0, 0, 0))
+    px[CX][CY] = (255, 0, 0)
+
+def imprimirAbejas(abeja_hijo):
+    for j in range(len(abeja_hijo)):
+        print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
+
+def imprimirFlores(flor):
+    for i in range(len(flor)):
+        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
+            flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras.color))
+
+def imprimirAbeja(abeja_hijo):
+    print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+        abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
+
+def imprimirFlor(flor):
+    print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
+        flor.color, flor.radio, flor.angulo, flor.muestras))
+
+def escogenciaDeGeneracionYAbeja():
+    generacion_escogidaStr = input("Generacion: ")
+    abeja_escogidaStr = input("Abeja: ")
+    generacion_escogida = int(generacion_escogidaStr)
+    abeja_escogida = int(abeja_escogidaStr)
+    abejas = baseDeDatos[generacion_escogida]
+    abeja = abejas[abeja_escogida]
+    imprimirAbeja(abeja)
+    
+    flroes_visitadas = len(abeja.polen)
+    print("Cuantas flores visito? %s" % flroes_visitadas)
+    if(flroes_visitadas > 1):
+        imprimirFlores(abeja.polen)
+        pintarFlores(abeja.polen)
+    else:
+        imprimirFlor(abeja.polen)
+        
+
 
 def probabilidadAdaptabilidad(totalGener):
     lista = []
@@ -282,52 +334,7 @@ def probabilidadAdaptabilidad(totalGener):
         print("devEstandar %s" % devEstandar)
         return True
     else:
-        return False    
-
-def strColor(color):
-    return f"({str(color[0]).zfill(3)},{str(color[1]).zfill(3)},{str(color[2]).zfill(3)})"
-
-def pintarFlores(flores):
-    global px
-    for flor in flores:
-        x,y,name=XYfromPolar(CX,CY,flor.radio,flor.angulo)
-        print("Pintando flor de color "+strColor(flor.color)+" en el punto: "+name)
-        if x<ANCHO and x>=0 and y<ANCHO and y>=0:
-            px[x][y]=flor.color
-
-def despintarViejasFlores():
-    screen.fill((0, 0, 0))
-    px[CX][CY] = (255, 0, 0)
-
-def imprimirAbejas(abeja_hijo):
-    for j in range(len(abeja_hijo)):
-        print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-            abeja_hijo[j].direccion_favorita, abeja_hijo[j].color_favorito, abeja_hijo[j].tolerancia_al_color, abeja_hijo[j].angulo_desviacion, abeja_hijo[j].distancia_maxima))
-
-def imprimirFlores(flor):
-    for i in range(len(flor)):
-        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
-            flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
-
-def imprimirAbeja(abeja_hijo):
-    print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
-        abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
-
-def imprimirFlor(flor):
-    print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
-        flor.color, flor.radio, flor.angulo, flor.muestras))
-
-def escogenciaDeGeneracionYAbeja():
-    generacion_escogidaStr = input("Generacion: ")
-    abeja_escogidaStr = input("Abeja: ")
-    generacion_escogida = int(generacion_escogidaStr)
-    abeja_escogida = int(abeja_escogidaStr)
-    abejas = baseDeDatos[generacion_escogida]
-    abeja = abejas[abeja_escogida]
-    imprimirAbeja(abeja)
-    imprimirFlores(abeja.polen)
-    pintarFlores(abeja.polen)
-
+        return False
 
 """ 
 Algoritmo generico
@@ -362,7 +369,10 @@ def jardin():
 
     def calcularCalificacionRelativa(abejas,sumCalifGener):
         for abeja in abejas:
-            cacheNormalizedFitness[abeja]=calificacionBruta(abeja)/sumCalifGener
+            if sumCalifGener != 0:
+                cacheNormalizedFitness[abeja]=calificacionBruta(abeja)/sumCalifGener
+            else:
+                cacheNormalizedFitness[abeja] =0.001
 
     def reproducirAbejas(abejas):
         """
@@ -396,11 +406,11 @@ def jardin():
         crearFlor()
         for _ in range(CANT_FLORES)
     ]
+    totalGener=[]
     for g in range(CANT_GENERACIONES):
         print("Generación #"+str(g))
         pintarFlores(flores)
         sumCalifGener=0
-        totalGener=[]
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
             tmpFlores=list(flores)
@@ -408,14 +418,14 @@ def jardin():
             for punto in recorrido:
                 flor=getFlor(punto,tmpFlores)
                 if flor!=None and (mismoColor(flor.color,abeja.color_favorito) or abeja.toleraColorFeo()):
-                    print("La abeja "+str(abeja)+" se ha encontrado con la flor "+str(flor))
+                    #print("La abeja "+str(abeja)+" se ha encontrado con la flor "+str(flor))
                     flor.muestras+=abeja.polen
                     abeja.polen.append(flor)
                     abeja.cantFlores+=1
                     
-                    print(f"Nuevo polen de la abeja: \n{strLista(abeja.polen)}")
-                    print(f"Nuevas muestras de la flor: \n{strLista([str(muestra)for muestra in flor.muestras])}")
-                    print(f"Cantidad flores visitadas por esta abeja: {str(abeja.cantFlores)}")
+                    #print(f"Nuevo polen de la abeja: \n{strLista(abeja.polen)}")
+                    #print(f"Nuevas muestras de la flor: \n{strLista([str(muestra)for muestra in flor.muestras])}")
+                    #print(f"Cantidad flores visitadas por esta abeja: {str(abeja.cantFlores)}")
                 abeja.distanciaRecorrida+=distancia(puntoAnterior,punto)
                 puntoAnterior=punto
             sumCalifGener+=calificacionBruta(abeja)
@@ -428,9 +438,8 @@ def jardin():
             for flor in flores
         ]
         
-        if len(totalGener) > 2:
-            if probabilidadAdaptabilidad(totalGener) == True:
-                break
+        if len(totalGener) > 1 and probabilidadAdaptabilidad(totalGener) == True:
+            break
         flores=nuevasFlores
         despintarViejasFlores()
     escogenciaDeGeneracionYAbeja()
@@ -471,7 +480,7 @@ screen = pygame.display.set_mode((ANCHO, ANCHO))
 screen.fill((0, 0, 0))
 px = pygame.PixelArray(screen)
 pygame.display.set_caption("La colmena")
-clock = pygame.time.Clock()
+#clock = pygame.time.Clock()
 seed()
 
 #Colmena
@@ -489,6 +498,6 @@ while not done:
         if event.type == pygame.KEYDOWN:
             pass
     pygame.display.update()
-    clock.tick(60)
+    #clock.tick(60)
 pygame.quit()
 quit()
