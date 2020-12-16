@@ -428,8 +428,9 @@ def jardin():
             for flor in flores
         ]
         
-        if probabilidadAdaptabilidad(totalGener) == True and len(totalGener) > 3:
-            break
+        if len(totalGener) > 2:
+            if probabilidadAdaptabilidad(totalGener) == True:
+                break
         flores=nuevasFlores
         despintarViejasFlores()
     escogenciaDeGeneracionYAbeja()
