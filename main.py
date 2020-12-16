@@ -273,8 +273,8 @@ def imprimirAbejas(abeja_hijo):
 
 def imprimirFlores(flor):
     for i in range(len(flor)):
-        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
-            flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
+        print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Cantida de muestras: %s \n" % (
+            flor[i].color, flor[i].radio, flor[i].angulo, len(flor[i].muestras)))
 
 def imprimirAbeja(abeja_hijo):
     print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
@@ -296,6 +296,10 @@ def escogenciaDeGeneracionYAbeja():
     
     print("Tipo de recorrido: %s" % abeja.recorrido)
     print("Flores visitadas: %s" % abeja.cantFlores)
+    print("Distancia de recorrido: %s" % abeja.distanciaRecorrida)
+    print("Padre: %s" % abeja.padre)
+    print("Madre: %s" % abeja.madre)
+
     if(abeja.cantFlores > 1):
         imprimirFlores(abeja.polen)
         pintarFlores(abeja.polen)
@@ -304,8 +308,6 @@ def escogenciaDeGeneracionYAbeja():
     else:
         imprimirFlor(abeja.polen)
         
-
-
 def probabilidadAdaptabilidad(totalGener):
     lista = []
 
