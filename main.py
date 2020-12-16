@@ -277,7 +277,7 @@ def imprimirFlores(flor):
             flor[i].color, flor[i].radio, flor[i].angulo, len(flor[i].muestras)))
 
 def imprimirAbeja(abeja_hijo):
-    print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+    print("Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
         abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
 
 def imprimirFlor(pFlor):
@@ -292,6 +292,8 @@ def escogenciaDeGeneracionYAbeja():
     abeja_escogida = int(abeja_escogidaStr)
     abejas = baseDeDatos[generacion_escogida]
     abeja = abejas[abeja_escogida]
+
+    print("Abeja hija:")
     imprimirAbeja(abeja)
     
     print("Tipo de recorrido: %s" % abeja.recorrido)
@@ -306,10 +308,10 @@ def escogenciaDeGeneracionYAbeja():
     else:
         imprimirFlor(abeja.polen)
 
-    print("Padre: %s" % abeja.padre)
-    print("Madre: %s" % abeja.madre)
     if generacion_escogida > 0:
+        print("Padre:")
         imprimirAbeja(abeja.padre)
+        print("Madre:")
         imprimirAbeja(abeja.madre)
 
 
