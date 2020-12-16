@@ -282,8 +282,8 @@ def imprimirAbeja(abeja_hijo):
 
 def imprimirFlor(pFlor):
     flor = pFlor[0]
-    print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
-        flor.color, flor.radio, flor.angulo, flor.muestras))
+    print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Cantidad de muestras: %s \n" % (
+        flor.color, flor.radio, flor.angulo, len(flor.muestras)))
 
 def escogenciaDeGeneracionYAbeja():
     generacion_escogidaStr = input("Generacion: ")
@@ -297,8 +297,6 @@ def escogenciaDeGeneracionYAbeja():
     print("Tipo de recorrido: %s" % abeja.recorrido)
     print("Flores visitadas: %s" % abeja.cantFlores)
     print("Distancia de recorrido: %s" % abeja.distanciaRecorrida)
-    print("Padre: %s" % abeja.padre)
-    print("Madre: %s" % abeja.madre)
 
     if(abeja.cantFlores > 1):
         imprimirFlores(abeja.polen)
@@ -307,7 +305,13 @@ def escogenciaDeGeneracionYAbeja():
         print("No visito ninguna flor.")
     else:
         imprimirFlor(abeja.polen)
-        
+
+    print("Padre:")
+    imprimirAbeja(abeja.padre)
+
+    print("Madre:")
+    imprimirAbeja(abeja.madre)
+
 def probabilidadAdaptabilidad(totalGener):
     lista = []
 
@@ -442,11 +446,10 @@ def jardin():
             flor.reproducir()
             for flor in flores
         ]
-        
+        flores = nuevasFlores
+        despintarViejasFlores()
         if len(totalGener) > 2 and probabilidadAdaptabilidad(totalGener) == True:
             break
-        flores=nuevasFlores
-        despintarViejasFlores()
     escogenciaDeGeneracionYAbeja()
 
 
