@@ -277,12 +277,12 @@ def imprimirFlores(flor):
             flor[i].color, flor[i].radio, flor[i].angulo, len(flor[i].muestras)))
 
 def imprimirAbeja(abeja_hijo):
-    print("Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
+    print("Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s \n" % (
         abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
 
 def imprimirFlor(pFlor):
     flor = pFlor[0]
-    print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Cantidad de muestras: %s \n" % (
+    print(" Flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Cantidad de muestras: %s \n" % (
         flor.color, flor.radio, flor.angulo, len(flor.muestras)))
 
 def escogenciaDeGeneracionYAbeja():
@@ -299,7 +299,7 @@ def escogenciaDeGeneracionYAbeja():
     print("Tipo de recorrido: %s" % abeja.recorrido)
     print("Flores visitadas: %s" % abeja.cantFlores)
     print("Distancia de recorrido: %s" % abeja.distanciaRecorrida)
-
+    print("Lista de polen: %s")
     if(abeja.cantFlores > 1):
         imprimirFlores(abeja.polen)
         pintarFlores(abeja.polen)
@@ -498,9 +498,11 @@ seed()
 #Colmena
 px[CX][CY] = (255, 0, 0)
 
-t = threading.Thread(target=jardin)
-t.setDaemon(True)
-t.start()
+#t = threading.Thread(target=jardin)
+#t.setDaemon(True)
+#t.start()
+
+jardin()
 
 done = False
 while not done:
