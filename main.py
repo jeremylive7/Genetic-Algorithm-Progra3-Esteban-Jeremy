@@ -306,12 +306,13 @@ def escogenciaDeGeneracionYAbeja():
     else:
         imprimirFlor(abeja.polen)
 
-    if abeja_escogida > 0:
-        print("Padre:")
+    print("Padre: %s" % abeja.padre)
+    print("Madre: %s" % abeja.madre)
+    if generacion_escogida > 0:
         imprimirAbeja(abeja.padre)
-
-        print("Madre:")
         imprimirAbeja(abeja.madre)
+
+
 
 def probabilidadAdaptabilidad(totalGener):
     lista = []
