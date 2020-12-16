@@ -293,11 +293,14 @@ def escogenciaDeGeneracionYAbeja():
     abeja = abejas[abeja_escogida]
     imprimirAbeja(abeja)
     
-    flroes_visitadas = len(abeja.polen)
-    print("Cuantas flores visito? %s" % flroes_visitadas)
-    if(flroes_visitadas > 1):
+    flores_visitadas = len(abeja.polen)
+    print("Tipo de recorrido: %s" % abeja.recorrido)
+    print("Flores visitadas: %s" % flores_visitadas)
+    if(flores_visitadas > 1):
         imprimirFlores(abeja.polen)
         pintarFlores(abeja.polen)
+    elif flores_visitadas == 0:
+        print("No visito ninguna flor.")
     else:
         imprimirFlor(abeja.polen)
         
