@@ -280,7 +280,8 @@ def imprimirAbeja(abeja_hijo):
     print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
         abeja_hijo.direccion_favorita, abeja_hijo.color_favorito, abeja_hijo.tolerancia_al_color, abeja_hijo.angulo_desviacion, abeja_hijo.distancia_maxima))
 
-def imprimirFlor(flor):
+def imprimirFlor(pFlor):
+    flor = pFlor[0]
     print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
         flor.color, flor.radio, flor.angulo, flor.muestras))
 
