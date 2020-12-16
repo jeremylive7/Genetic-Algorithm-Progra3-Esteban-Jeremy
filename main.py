@@ -274,7 +274,7 @@ def imprimirAbejas(abeja_hijo):
 def imprimirFlores(flor):
     for i in range(len(flor)):
         print("Variables de flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Muestras: %s \n" % (
-            flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras.color))
+            flor[i].color, flor[i].radio, flor[i].angulo, flor[i].muestras))
 
 def imprimirAbeja(abeja_hijo):
     print("Variables hijo: \n Direccion favorita: %s \n Color favorito: %s \n Tolerancia al color: %s \n Angulo desviacion: %s \n Distancia maxima: %s" % (
