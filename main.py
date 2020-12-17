@@ -1,3 +1,7 @@
+"""
+Documentacion:
+https://www.overleaf.com/5195448532nqzgcbrsrnpd
+"""
 import pygame
 from pygame.locals import *
 import threading
