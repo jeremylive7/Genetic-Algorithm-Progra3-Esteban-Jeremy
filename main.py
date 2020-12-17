@@ -293,7 +293,7 @@ def imprimirFlor(pFlor):
 def imprimirTipoDeRecorrido(num):
     if num == 0 or num == 0.0:
         return "Anchura"
-    elif num == 1.0 or 1:
+    elif num == 1.0 or num==1:
         return "Profundidad"
     else:
         return "Random"
