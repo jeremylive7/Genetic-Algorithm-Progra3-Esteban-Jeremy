@@ -287,10 +287,11 @@ def imprimirFlor(pFlor):
 
 def escogenciaDeGeneracionYAbeja():
     generacion_escogidaStr = input("\nGeneracion: ")
-    abeja_escogidaStr = input("Abeja: ")
     generacion_escogida = int(generacion_escogidaStr)
-    abeja_escogida = int(abeja_escogidaStr)
     abejas = baseDeDatos[generacion_escogida]
+    print(" -> Cantidad total de abejas: %s" % len(abejas)-1)
+    abeja_escogidaStr = input("Abeja: ")
+    abeja_escogida = int(abeja_escogidaStr)
     abeja = abejas[abeja_escogida]
 
     print("\nAbeja hija:")
@@ -313,8 +314,6 @@ def escogenciaDeGeneracionYAbeja():
         imprimirAbeja(abeja.padre)
         print("Madre:")
         imprimirAbeja(abeja.madre)
-
-
 
 def probabilidadAdaptabilidad(totalGener):
     lista = []
@@ -341,8 +340,8 @@ def probabilidadAdaptabilidad(totalGener):
 
     promedio = abs(devEstandarAnterior-devEstandar)
 
-#    if promedio < 1.5 and promedio > 0.1:
-    if promedio < 2:
+    if promedio < 1.5 and promedio > 0.1:
+#    if promedio < 2:
         print("devEstandarAnterior %s" % devEstandarAnterior)
         print("devEstandar %s" % devEstandar)
         return True
@@ -454,7 +453,8 @@ def jardin():
         despintarViejasFlores()
         if len(totalGener) > 2 and probabilidadAdaptabilidad(totalGener) == True:
             break
-    escogenciaDeGeneracionYAbeja()
+    while(True):
+        escogenciaDeGeneracionYAbeja()
 
 
 """
@@ -498,11 +498,11 @@ seed()
 #Colmena
 px[CX][CY] = (255, 0, 0)
 
-#t = threading.Thread(target=jardin)
-#t.setDaemon(True)
-#t.start()
+t = threading.Thread(target=jardin)
+t.setDaemon(True)
+t.start()
 
-jardin()
+#jardin()
 
 done = False
 while not done:
