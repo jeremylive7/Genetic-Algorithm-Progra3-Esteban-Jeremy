@@ -21,6 +21,7 @@ class Abeja:
         self.distanciaRecorrida=0
         self.madre=None
         self.padre=None
+        self.indice=0
 
     def __str__(self):
         return "Abeja( DirecFav="+self.getDireccionFavoritaStr()+", MaxDesv="+str(self.angulo_desviacion)+", MaxDist="+str(self.distancia_maxima)+", ColorFav="+strColor(self.color_favorito)+" )"
@@ -285,17 +286,26 @@ def imprimirFlor(pFlor):
     print(" Flor: \n Color: %s \n Radio: %s \n Angulo: %s \n Cantidad de muestras: %s \n" % (
         flor.color, flor.radio, flor.angulo, len(flor.muestras)))
 
+def imprimirTipoDeRecorrido(num):
+    if num == 0 or num == 0.0:
+        return "Anchura"
+    elif num == 1.0 or 1:
+        return "Profundidad"
+    else:
+        return "Random"
+
 def escogenciaDeGeneracionYAbeja():
     generacion_escogidaStr = input("\nGeneracion: ")
     generacion_escogida = int(generacion_escogidaStr)
     abejas = baseDeDatos[generacion_escogida]
-    print(" -> Cantidad total de abejas: %s" % len(abejas)-1)
+    cantidad_abejas = len(abejas)-1
+    print(" -> Cantidad total de abejas: %s" % cantidad_abejas)
     abeja_escogidaStr = input("Abeja: ")
     abeja_escogida = int(abeja_escogidaStr)
     abeja = abejas[abeja_escogida]
 
     print("\nAbeja hija:")
-    print(" Tipo de recorrido: %s" % abeja.recorrido)
+    print(" Tipo de recorrido: %s" % imprimirTipoDeRecorrido(abeja.recorrido))
     print(" Flores visitadas: %s" % abeja.cantFlores)
     print(" Distancia de recorrido: %s" % abeja.distanciaRecorrida)
     imprimirAbeja(abeja)
@@ -310,9 +320,18 @@ def escogenciaDeGeneracionYAbeja():
         imprimirFlor(abeja.polen)
 
     if generacion_escogida > 0:
+        print("Los padres son de la generacion #%s" % (generacion_escogida-1))
         print("Padre:")
+        print(" Indice de la abeja: %s" % abeja.padre.indice)
+        print(" Tipo de recorrido: %s" % imprimirTipoDeRecorrido(abeja.padre.recorrido))
+        print(" Flores visitadas: %s" % abeja.padre.cantFlores)
+        print(" Distancia de recorrido: %s" % abeja.padre.distanciaRecorrida)
         imprimirAbeja(abeja.padre)
         print("Madre:")
+        print(" Indice de la abeja: %s" % abeja.madre.indice)
+        print(" Tipo de recorrido: %s" % imprimirTipoDeRecorrido(abeja.madre.recorrido))
+        print(" Flores visitadas: %s" % abeja.madre.cantFlores)
+        print(" Distancia de recorrido: %s" % abeja.madre.distanciaRecorrida)
         imprimirAbeja(abeja.madre)
 
 def probabilidadAdaptabilidad(totalGener):
@@ -342,7 +361,7 @@ def probabilidadAdaptabilidad(totalGener):
 
     if promedio < 1.5 and promedio > 0.1:
 #    if promedio < 2:
-        print("devEstandarAnterior %s" % devEstandarAnterior)
+        print("\ndevEstandarAnterior %s" % devEstandarAnterior)
         print("devEstandar %s" % devEstandar)
         return True
     else:
@@ -404,6 +423,16 @@ def jardin():
                 abejas,
                 weights=pesos,
                 k=2)
+            #print("indice1:%s Indice2:%s"% (abejaPadre.indice, abejaMadre.indice))
+            while abejaPadre == abejaMadre:
+                #print("Son iguales")
+                abejaMadre0=choices(
+                    abejas,
+                    weights=pesos,
+                    k=1)
+                abejaMadre=abejaMadre0[0]
+                #print("Ahora indice2:%s" % abejaMadre.indice)
+            
             nuevasAbejas+=abejaPadre.cruzarAbejas(abejaMadre)
         assert len(nuevasAbejas)==CANT_ABEJAS
         return nuevasAbejas
@@ -423,10 +452,13 @@ def jardin():
         print("Generación #"+str(g))
         pintarFlores(flores)
         sumCalifGener=0
+        indice_contador=0
         for abeja in abejas:
             recorrido=abeja.calcularRecorrido()
             tmpFlores=list(flores)
             puntoAnterior=(CX,CY)
+            abeja.indice = indice_contador
+            indice_contador+=1
             for punto in recorrido:
                 flor=getFlor(punto,tmpFlores)
                 if flor!=None and (mismoColor(flor.color,abeja.color_favorito) or abeja.toleraColorFeo()):
@@ -473,7 +505,8 @@ Q=1
 K=1
 R=5 #Distancia a la que se acepta que la abeja llegó a la flor
 C=10 #Distancia a la que un color es igual a otro
-anchoStr = input("Cuanto de Ancho y largo gusta su interfaz??? Porfavor digite un numero par >>> ")
+anchoStr = input("\nCuanto de Ancho y largo gusta su interfaz??? Porfavor digite un numero par >>> ")
+print("\n")
 ANCHO = int(anchoStr)
 MITAD_ANCHO = int(ANCHO/2)
 PARAM_SIZE_1 = 16
