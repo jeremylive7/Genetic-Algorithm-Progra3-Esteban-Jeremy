@@ -236,14 +236,14 @@ def mutar(genoma,probabilidad_mutacion):
     if random()<probabilidad_mutacion:
         cantBits=randint(1,5)
         for _ in range ( cantBits ):
-            i=randint(0,len(genoma))
+            i=randint(0,len(genoma)-1)
             negarBit(genoma,i)
 
 def negarBit(genoma,i):
     if genoma[i]=='1':
-        genoma[i]='0'
+        genoma=genoma[:i]+'0'+genoma[i+1:]
     else:
-        genoma[i]='1'
+        genoma=genoma[:i]+'1'+genoma[i+1:]
 
 def frange(inicio,fin,step):
     return [inicio + i*step for i in range(int((fin-inicio)/step))]
@@ -357,6 +357,9 @@ def escogenciaDeGeneracionYAbeja():
         imprimirAbeja(abeja.madre)
 
 def probabilidadAdaptabilidad(totalGener):
+    stdev=statistics.stdev(totalGener[-5:])
+    print(stdev,totalGener[-1])
+    return stdev<1 and len(totalGener)>CANT_GENERACIONES
     lista = []
 
     if len(totalGener) < 5:
@@ -380,6 +383,7 @@ def probabilidadAdaptabilidad(totalGener):
         devEstandar = statistics.stdev(lista)
 
     promedio = abs(devEstandarAnterior-devEstandar)
+    
 
     if promedio < 1.5 and promedio > 0.1:
 #    if promedio < 2:
@@ -507,7 +511,7 @@ def jardin():
         despintarViejasFlores()
         if len(totalGener) > 2 and probabilidadAdaptabilidad(totalGener) == True:
             break
-    while(True):
+    while True:
         escogenciaDeGeneracionYAbeja()
 
 
@@ -547,7 +551,6 @@ screen = pygame.display.set_mode((ANCHO, ANCHO))
 screen.fill((0, 0, 0))
 px = pygame.PixelArray(screen)
 pygame.display.set_caption("La colmena")
-#clock = pygame.time.Clock()
 seed()
 
 #Colmena
