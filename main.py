@@ -113,11 +113,13 @@ class Abeja:
         pivote_random = randint(0, len(lista_padre)-1)
         genoma_hijo_1 = lista_padre[:pivote_random]+lista_madre[pivote_random:]
         genoma_hijo_2 = lista_madre[:pivote_random]+lista_padre[pivote_random:]
-
+        mutar(genoma_hijo_1,PROB_MUTACION_ABEJA)
+        mutar(genoma_hijo_2,PROB_MUTACION_ABEJA)
         lista_abejas_hijas=[Abeja.transformarEnAbeja(genoma_hijo_1),Abeja.transformarEnAbeja(genoma_hijo_2)]
         for abeja in lista_abejas_hijas:
             abeja.madre=abeja_madre
             abeja.padre=self
+            
         #print('Padre: '+lista_padre,'Madre: '+lista_madre,f'Pivote: {pivote_random}',
         #    'Hijo1: '+genoma_hijo_1[:pivote_random]+' '+genoma_hijo_1[pivote_random:],
         #    'Hijo2: '+genoma_hijo_2[:pivote_random]+' '+genoma_hijo_2[pivote_random:],sep='\n' )
@@ -182,7 +184,9 @@ class Flor:
         if len(self.muestras)==0:
             return crearFlor()
         madre=choice(self.muestras)
-        return Flor.transformarEnFlor(self, Flor.cruzarFlores(self,madre))
+        genomaResultado=self.cruzarFlores(madre)
+        mutar(genomaResultado,PROB_MUTACION_FLOR)
+        return self.transformarEnFlor(genomaResultado)
 
     def cruzarFlores(self, flor_madre):
         """ 
@@ -212,6 +216,7 @@ class Flor:
                                Funciones genericas
 ----------------------------------------------------------------------------------------
 """
+
 def crearFlor():
     return Flor(
         choice(COLORES_FAVORITOS),
@@ -226,6 +231,19 @@ def creoAbeja():
         random()*pi/6, 
         randint(0, LIMITE),
         randint(0,2))
+
+def mutar(genoma,probabilidad_mutacion):
+    if random()<probabilidad_mutacion:
+        cantBits=randint(1,5)
+        for _ in range ( cantBits ):
+            i=randint(0,len(genoma))
+            negarBit(genoma,i)
+
+def negarBit(genoma,i):
+    if genoma[i]=='1':
+        genoma[i]='0'
+    else:
+        genoma[i]='1'
 
 def frange(inicio,fin,step):
     return [inicio + i*step for i in range(int((fin-inicio)/step))]
@@ -519,7 +537,7 @@ CX = MITAD_ANCHO
 CY = MITAD_ANCHO
 LIMITE = round(sqrt(pow(CX, 2) + pow(CY, 2)))
 
-PROB_MUTACION=0.0015
+PROB_MUTACION_ABEJA=PROB_MUTACION_FLOR=0.0015
 
 baseDeDatos = []
 
