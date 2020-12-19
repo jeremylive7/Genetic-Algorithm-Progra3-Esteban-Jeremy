@@ -163,7 +163,7 @@ class Abeja:
         
         codGeneticoColorFav=genoma[24:48]
         nueva_abeja=Abeja(
-            int(genoma[:16],2)/0xffff*2*pi,
+            direccion_favorita,
             (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
             int(genoma[16:24],2)/0xff,
             int(genoma[48:64], 2)/0xffff*2*pi,
