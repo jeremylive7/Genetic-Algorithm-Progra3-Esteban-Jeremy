@@ -125,14 +125,37 @@ class Abeja:
         #    'Hijo2: '+genoma_hijo_2[:pivote_random]+' '+genoma_hijo_2[pivote_random:],sep='\n' )
         return lista_abejas_hijas
 
+    def obtenerDireccionFavorita(direc_favo):
+        if direc_favo >= 0 and direc_favo <= 32:
+            direccion_favorita = DIRECCIONES_FAVORITAS[0]
+        elif direc_favo>32 and direc_favo<=64:
+            direccion_favorita=DIRECCIONES_FAVORITAS[1]
+        elif direc_favo>64 and direc_favo<=96:
+            direccion_favorita=DIRECCIONES_FAVORITAS[2]
+        elif direc_favo>96 and direc_favo<=128:
+            direccion_favorita=DIRECCIONES_FAVORITAS[3]
+        elif direc_favo>128 and direc_favo<=160:
+            direccion_favorita=DIRECCIONES_FAVORITAS[4]
+        elif direc_favo>160 and direc_favo<=192:
+            direccion_favorita=DIRECCIONES_FAVORITAS[5]
+        elif direc_favo>192 and direc_favo<=224:
+            direccion_favorita=DIRECCIONES_FAVORITAS[6]
+        else:
+            direccion_favorita=DIRECCIONES_FAVORITAS[7]
+
+        return direccion_favorita
+
     def transformarEnAbeja(genoma):
         """
         Crea una abeja con sus variables correspondientes.
         Se base de lista de bits del genoma.
         """
+        direc_favo = int(genoma[:16], 2)/0xffff*2*pi
+        direccion_favorita = Abeja.obtenerDireccionFavorita(direc_favo)
+        
         codGeneticoColorFav=genoma[24:48]
         nueva_abeja=Abeja(
-            int(genoma[:16],2)/0xffff*2*pi,
+            direccion_favorita,
             (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
             int(genoma[16:24],2)/0xff,
             int(genoma[48:64], 2)/0xffff*2*pi,
@@ -385,8 +408,9 @@ def probabilidadAdaptabilidad(totalGener):
     promedio = abs(devEstandarAnterior-devEstandar)
     
 
-    if promedio < 1.5 and promedio > 0.1:
-#    if promedio < 2:
+#    if promedio < 1.5 and promedio > 0.1:
+    print("\npromedio:%s" % promedio)
+    if promedio < 1:
         print("\ndevEstandarAnterior %s" % devEstandarAnterior)
         print("devEstandar %s" % devEstandar)
         return True
