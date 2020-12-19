@@ -365,7 +365,7 @@ def escogenciaDeGeneracionYAbeja():
 
     print(" Lista de polen:")
     if(abeja.cantFlores > 1):
-        #imprimirFlores(abeja.polen)
+        imprimirFlores(abeja.polen)
         pintarFlores(abeja.polen)
     elif abeja.cantFlores == 0:
         print(" No visito ninguna flor.")
@@ -533,8 +533,6 @@ def jardin():
         despintarViejasFlores()
         if len(totalGener) > 2 and probabilidadAdaptabilidad(totalGener) == True:
             break
-    with open('info.csv','a+')as f:
-        f.write(','+str(sumCalifGener))
     while True:
         escogenciaDeGeneracionYAbeja()
 
