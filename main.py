@@ -8,10 +8,18 @@ import threading
 import statistics
 from math import pi,sin,cos,sqrt, pow
 from random import random, choices,randint,uniform,seed,choice
+def encontrarPuntosSobreElArea(angulo, radio):
+    return []
+def generarListaAnchuraRecorrido(puntosDesordenados):
+    """
+    #encontrar el primer punto a la izquierda y el más cercano
+    #mientras aún hayan puntos por acomodar
+        #acomodarlos por distancia desde el centro y por angulo ascendente
+        #ir sacando de la lista acomodado hasta que el ángulo llegue a un borde
+        #ordenarlos por distancia y por angulo pero ahora descendente
+        #ir sacando hasta que llegue al otro borde
+    """
 
-""" 
-Clase Abeja
-"""
 class Abeja:
     def __init__(self, pDireccion_favorita, pColor_favorito, pTolerancia_al_color, pAngulo_desviacion, pDistancia_maxima,r):
         self.direccion_favorita = pDireccion_favorita
@@ -155,7 +163,7 @@ class Abeja:
         
         codGeneticoColorFav=genoma[24:48]
         nueva_abeja=Abeja(
-            direccion_favorita,
+            int(genoma[:16],2)/0xffff*2*pi,
             (int(codGeneticoColorFav[:8],2), int(codGeneticoColorFav[8:16],2), int(codGeneticoColorFav[16:],2)),
             int(genoma[16:24],2)/0xff,
             int(genoma[48:64], 2)/0xffff*2*pi,
@@ -382,7 +390,7 @@ def escogenciaDeGeneracionYAbeja():
 def probabilidadAdaptabilidad(totalGener):
     stdev=statistics.stdev(totalGener[-5:])
     print(stdev,totalGener[-1])
-    return stdev<1 and len(totalGener)>CANT_GENERACIONES
+    return len(totalGener)>CANT_GENERACIONES and stdev<ST_DEV
     lista = []
 
     if len(totalGener) < 5:
@@ -408,9 +416,8 @@ def probabilidadAdaptabilidad(totalGener):
     promedio = abs(devEstandarAnterior-devEstandar)
     
 
-#    if promedio < 1.5 and promedio > 0.1:
-    print("\npromedio:%s" % promedio)
-    if promedio < 1:
+    if promedio < 1.5 and promedio > 0.1:
+#    if promedio < 2:
         print("\ndevEstandarAnterior %s" % devEstandarAnterior)
         print("devEstandar %s" % devEstandar)
         return True
@@ -425,14 +432,7 @@ def jardin():
     Esta función simula el comportamiento el jardín atravez de las
     generaciones de abejas y el respectivo comportamiento de las
     flores.
-    """    
-    def getFlor(punto,flores):
-        for flor in flores:
-            if distancia(XYfromPolar(CX,CY,flor.radio,flor.angulo),punto)<R:
-                flores.remove(flor)
-                return flor
-        return None
-
+    """
     def calificacionBruta(abeja):
         """
         Esta función busca calificar cada abeja pero recordando si ya
@@ -453,7 +453,7 @@ def jardin():
             if sumCalifGener != 0:
                 cacheNormalizedFitness[abeja]=calificacionBruta(abeja)/sumCalifGener
             else:
-                cacheNormalizedFitness[abeja] =0.001
+                cacheNormalizedFitness[abeja] = 0.001
 
     def reproducirAbejas(abejas):
         """
@@ -498,30 +498,28 @@ def jardin():
         for _ in range(CANT_FLORES)
     ]
     totalGener=[]
-    for g in range(CANT_GENERACIONES):
+    for g in range(MAX_GENERACIONES):
         print("Generación #"+str(g))
         pintarFlores(flores)
         sumCalifGener=0
         indice_contador=0
         for abeja in abejas:
-            recorrido=abeja.calcularRecorrido()
-            tmpFlores=list(flores)
             puntoAnterior=(CX,CY)
             abeja.indice = indice_contador
             indice_contador+=1
-            for punto in recorrido:
-                flor=getFlor(punto,tmpFlores)
-                if flor!=None and (mismoColor(flor.color,abeja.color_favorito) or abeja.toleraColorFeo()):
-                    #print("La abeja "+str(abeja)+" se ha encontrado con la flor "+str(flor))
-                    flor.muestras+=abeja.polen
-                    abeja.polen.append(flor)
-                    abeja.cantFlores+=1
-                    
-                    #print(f"Nuevo polen de la abeja: \n{strLista(abeja.polen)}")
-                    #print(f"Nuevas muestras de la flor: \n{strLista([str(muestra)for muestra in flor.muestras])}")
-                    #print(f"Cantidad flores visitadas por esta abeja: {str(abeja.cantFlores)}")
-                abeja.distanciaRecorrida+=distancia(puntoAnterior,punto)
-                puntoAnterior=punto
+            for punto in abeja.calcularRecorrido():
+                for flor in flores:
+                    if distancia(XYfromPolar(CX,CY,flor.radio,flor.angulo),punto)<R and flor not in abeja.polen:
+                        if mismoColor(flor.color,abeja.color_favorito) or abeja.toleraColorFeo():
+                            #print("La abeja "+str(abeja)+" se ha encontrado con la flor "+str(flor))
+                            flor.muestras+=abeja.polen
+                            abeja.polen.append(flor)
+                            abeja.cantFlores+=1
+                            #print(f"Nuevo polen de la abeja: \n{strLista(abeja.polen)}")
+                            #print(f"Nuevas muestras de la flor: \n{strLista([str(muestra)for muestra in flor.muestras])}")
+                        abeja.distanciaRecorrida+=distancia(puntoAnterior,punto)
+                        puntoAnterior=punto
+            #$if g>170:print(f"Cantidad flores visitadas por esta abeja: {str(abeja.cantFlores)}")
             sumCalifGener+=calificacionBruta(abeja)
         baseDeDatos.append(abejas)
         calcularCalificacionRelativa(abejas,sumCalifGener)
@@ -549,11 +547,13 @@ def jardin():
 COLORES_FAVORITOS = [(255, 0, 0), (255, 128, 0), (255, 255, 0), (0, 255, 0), (0, 255, 255), (0, 0, 255), (127, 0, 255), (255, 0, 255)]
 DIRECCIONES_FAVORITAS = [i/4*pi for i in range(8)]
 CANT_GENERACIONES=200
+MAX_GENERACIONES=10000
 CANT_ABEJAS=20
 CANT_FLORES=50
+ST_DEV=5
 Q=1
 K=1
-R=5 #Distancia a la que se acepta que la abeja llegó a la flor
+R=1.5 #Distancia a la que se acepta que la abeja llegó a la flor
 C=10 #Distancia a la que un color es igual a otro
 anchoStr = input("\nCuanto de Ancho y largo gusta su interfaz??? Porfavor digite un numero par >>> ")
 print("\n")
